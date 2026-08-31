@@ -11,6 +11,7 @@ from __future__ import annotations
 import csv
 import io
 import os
+import re
 from pathlib import Path
 
 from fastapi import FastAPI, Form, Request, UploadFile
@@ -20,7 +21,7 @@ from markupsafe import Markup, escape
 
 from ..benchmark import load_results
 from ..claim_pack import list_packs, load_pack
-from ..config import get_settings
+from ..config import REPO_ROOT, get_settings
 from ..corrections import corrections_csv_str
 from ..csv_io import record_from_fields
 from ..models import CallOutcome, Record, Verdict
@@ -298,12 +299,11 @@ async def packs_generate_save(pack_json: str = Form(..., alias="json")):
     import json as _json
 
     data = _json.loads(pack_json)
-    pack_id = data.get("pack_id", "custom")
-    dest_dir = Path(
-        os.environ.get("GHOSTLINE_PACKS_DIR")
-        or (Path(__file__).resolve().parents[1] / "data" / "packs")
-    )
+    pack_id = re.sub(r"[^a-z0-9-]", "", data.get("pack_id", "custom").lower())[:40] or "custom"
+    # User-generated packs go to a gitignored repo-root packs/ dir the loader also searches.
+    dest_dir = Path(os.environ.get("GHOSTLINE_PACKS_DIR") or (REPO_ROOT / "packs"))
     try:
+        dest_dir.mkdir(parents=True, exist_ok=True)
         (dest_dir / f"{pack_id}.json").write_text(pack_json, encoding="utf-8")
         return RedirectResponse("/packs", status_code=303)
     except OSError:

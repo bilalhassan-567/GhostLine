@@ -19,6 +19,7 @@ dist/
 *.sqlite3
 *.sqlite
 /data/
+/packs/          # user-generated claim packs (from the /packs 'generate' flow)
 call_audio/
 benchmark/*.wav
 benchmark/*.mp3
