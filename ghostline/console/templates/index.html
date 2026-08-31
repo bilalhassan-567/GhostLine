@@ -15,8 +15,10 @@
         <label>Mode</label>
         <select name="mode">
           <option value="replay">Replay &mdash; explore recorded scenarios, no calls</option>
-          <option value="live"{% if not settings.has_calle %} disabled{% endif %}>
-            Live &mdash; place a real CALL-E call{% if not settings.has_calle %} (CALLE_API_KEY not set){% endif %}
+          <option value="live"{% if not settings.has_calle or live_disabled %} disabled{% endif %}>
+            Live &mdash; place a real CALL-E call
+            {%- if live_disabled %} (not available on this hosted instance)
+            {%- elif not settings.has_calle %} (CALLE_API_KEY not set){% endif %}
           </option>
         </select>
       </div>

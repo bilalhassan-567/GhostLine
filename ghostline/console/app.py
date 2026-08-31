@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 import io
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, Form, Request, UploadFile
@@ -24,6 +25,15 @@ from ..csv_io import record_from_fields
 from ..models import CallOutcome, Record, Verdict
 from ..replay import load_fixtures
 from . import runs
+
+# On a serverless host (Vercel) there are no background workers, so the poll-based live
+# call flow is unavailable until the webhook-driven path ships. Replay Mode works everywhere.
+_LIVE_DISABLED = bool(os.environ.get("VERCEL")) and not os.environ.get("GHOSTLINE_WEBHOOK_BASE")
+_LIVE_DISABLED_MSG = (
+    "Live calling isn't available on this hosted instance yet (it needs a webhook receiver). "
+    "Explore every verdict state in Replay Mode, or run the console locally "
+    "(uvicorn ghostline.console.app:app) or the CLI (ghostline verify ... --live)."
+)
 
 app = FastAPI(title="Ghostline")
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -74,6 +84,7 @@ def index(request: Request):
             "packs": list_packs(),
             "pack": pack,
             "settings": get_settings(),
+            "live_disabled": _LIVE_DISABLED,
             "scenarios": [
                 (fx.path.stem, fx.meta.get("scenario", fx.path.stem)) for fx in load_fixtures()
             ],
@@ -97,22 +108,32 @@ async def verify(
     if mode == "live":
         if not records:
             return RedirectResponse("/?error=no-record", status_code=303)
+        if _LIVE_DISABLED:
+            return templates.TemplateResponse(
+                request, "notice.html", {"message": _LIVE_DISABLED_MSG}, status_code=503
+            )
         run = runs.start_live_run(records, pack, credits_remaining=None)
-    else:
-        run = runs.start_replay_run()
-    return RedirectResponse(f"/run/{run.id}", status_code=303)
+        return RedirectResponse(f"/run/{run.id}", status_code=303)
 
-
-@app.get("/replay")
-def replay_all():
+    # Replay: synchronous, render directly — no run store needed (works on serverless).
     run = runs.start_replay_run()
-    return RedirectResponse(f"/run/{run.id}", status_code=303)
+    return templates.TemplateResponse(request, "run.html", {"run": run})
 
 
-@app.get("/replay/{scenario}")
-def replay_one(scenario: str):
-    run = runs.start_replay_run(scenario)
-    return RedirectResponse(f"/run/{run.id}", status_code=303)
+@app.get("/replay", response_class=HTMLResponse)
+def replay_all(request: Request):
+    return templates.TemplateResponse(request, "run.html", {"run": runs.start_replay_run()})
+
+
+@app.get("/replay-corrections.csv")
+def replay_corrections():
+    run = runs.start_replay_run()
+    return _csv_response(run.all_attestations, "corrections-replay.csv")
+
+
+@app.get("/replay/{scenario}", response_class=HTMLResponse)
+def replay_one(request: Request, scenario: str):
+    return templates.TemplateResponse(request, "run.html", {"run": runs.start_replay_run(scenario)})
 
 
 @app.get("/run/{run_id}", response_class=HTMLResponse)
@@ -165,11 +186,14 @@ def corrections_download(run_id: str):
     run = runs.get_run(run_id)
     if run is None:
         return Response("Run not found.", status_code=404)
-    body = corrections_csv_str(run.all_attestations)
+    return _csv_response(run.all_attestations, f"corrections-{run_id}.csv")
+
+
+def _csv_response(attestations, filename: str) -> Response:
     return Response(
-        body,
+        corrections_csv_str(attestations),
         media_type="text/csv",
-        headers={"Content-Disposition": f'attachment; filename="corrections-{run_id}.csv"'},
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

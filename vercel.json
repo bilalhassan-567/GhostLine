@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "ghostline/console/app.py": {
+      "excludeFiles": "{tests/**,Docs/**,.venv/**,scratchpad/**,deploy/**,*.db,*.sqlite3}"
+    }
+  },
+  "env": {
+    "GHOSTLINE_DB": "/tmp/ghostline.db"
+  }
+}

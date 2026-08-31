@@ -8,6 +8,7 @@ This is the audit trail behind the trust story; it is not on the hot path of a s
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
@@ -15,7 +16,8 @@ from pathlib import Path
 from .config import REPO_ROOT
 from .models import Attestation
 
-DEFAULT_DB = REPO_ROOT / "ghostline.db"
+# Honour GHOSTLINE_DB; default to the repo root locally. On a read-only host set it to /tmp.
+DEFAULT_DB = Path(os.environ.get("GHOSTLINE_DB") or (REPO_ROOT / "ghostline.db"))
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS attestations (

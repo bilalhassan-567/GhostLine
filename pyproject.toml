@@ -30,6 +30,9 @@ dev = [
 [project.scripts]
 ghostline = "ghostline.cli:main"
 
+[tool.vercel]
+entrypoint = "ghostline.console.app:app"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

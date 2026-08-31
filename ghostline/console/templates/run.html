@@ -49,7 +49,11 @@
   {% endfor %}
 
   <p style="margin-top:20px">
+    {% if run.mode == "replay" %}
+    <a class="btn" href="/replay-corrections.csv">Download corrections.csv</a>
+    {% else %}
     <a class="btn" href="/run/{{ run.id }}/corrections.csv">Download corrections.csv</a>
+    {% endif %}
     <a class="btn ghost" href="/">New verification</a>
   </p>
 </div>
