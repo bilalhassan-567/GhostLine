@@ -68,9 +68,11 @@ page streams to a verdict with the evidence span highlighted in the transcript, 
 | Read | normalize `recipients[].attempts[].transcript_turns[]` → our `Transcript` |
 | Verify | our own extractor pulls a **verbatim** span; CALL-E's `structured_result` / `completion_confidence` are kept only as a secondary signal |
 
-The reusable contribution (`skills/phone-claim-verifier/`) uses the CALL-E **MCP** surface
-(`plan_call` → `run_call` → `get_call_run`). See
-[`Docs/research/CALL_E_INTEGRATION.md`](Docs/research/CALL_E_INTEGRATION.md).
+The reusable contribution is [`skills/phone-claim-verifier/`](skills/phone-claim-verifier/) —
+a portable Agent Skill (stdlib-only scripts + `SKILL.md`) for the CALL-E **MCP** surface
+(`plan_call` → `run_call` → `get_call_run`). `plan.py` turns records + a claim pack into call
+goals; `verdict.py` enforces evidence-span-or-abstain on the agent's extraction and writes the
+corrections file. See [`Docs/research/CALL_E_INTEGRATION.md`](Docs/research/CALL_E_INTEGRATION.md).
 
 ## Extending to a new domain
 
