@@ -1,0 +1,4 @@
+record_id,name,phone,address,region,contract_active,contact_current
+supplier_01,Harbor Supply Co.,+12025550151,42 Dock Road,US,true,true
+supplier_02,Ridgeline Components,+12025550152,900 Foundry Ave,US,true,true
+supplier_03,Coastal Fasteners,+12025550153,17 Pier St,US,true,false

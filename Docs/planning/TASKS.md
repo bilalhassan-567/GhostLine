@@ -72,48 +72,45 @@ Repo scaffolding (blocked on entrant's git go-ahead — currently on hold):
 - [~] **P0** Deploy hosted — **Vercel, Replay Mode LIVE** at https://ghostline-one.vercel.app (D-017). Phase 2 (webhook + Upstash → live "call yourself") pending.
 - [ ] **P0** Open **draft PR** to `CALLE-AI/awesome-phone-call-agents` — Skill is ready; needs: fork the repo, add `skills/phone-claim-verifier/` + a README resource-list line, `python3 scripts/validate_repository.py`, branch `feat/phone-claim-verifier`, push, open PR. Walk the entrant through it.
 
-## Day 8 — global live-call safety + auto-packs (Sep 7)
+## Day 8 — global live-call safety + auto-packs (Sep 7) — **done early**
 
-- [ ] **P0** Session/IP live-call rate cap (2–3). Credit-floor ⇒ Replay fallback. `/health` endpoint.
-- [ ] **P0** Manual-entry path tested end-to-end by someone who is not the entrant, ideally another country.
-- [ ] **P1** `core/claim_pack_generator.py` (§4.12a): plain-English → draft pack → human approval → saved as normal pack file. + auto-suggested `expires_after` (§4.12b).
+- [x] **P0** Session live-call cap, credit-floor ⇒ Replay fallback, `/health` (in `policy_gate.py` + console).
+- [ ] **P0** Manual-entry path tested end-to-end by someone who is not the entrant — **needs entrant** (test calls first).
+- [x] **P1** `ghostline/pack_generator.py` (§4.12a): plain-English → draft pack (LLM or deterministic template) → human-approve page → save/download. Auto `expires_after` from keywords (§4.12b).
 
-## Day 9 — innovation beat + reusability (Sep 8)
+## Day 9 — innovation beat + reusability (Sep 8) — **done early**
 
-- [ ] **P1** Derived calls (single-hop): lead detection → proposal card → human approve → policy gate with new number.
-- [ ] **P1** Expiry rendering (`Attested … · Valid until …`) + re-verification path + "what changed" diff (§4.12i).
-- [ ] **P1** `examples/supplier-crm-pack.yaml` — **fully demoed on camera**.
-- [ ] **P2** `examples/community-service-pack.yaml` (~10-line config, not demoed).
+- [x] **P1** Derived calls (`ghostline/derived.py`): lead detection (contact / move / number) → proposal card → human approve → `start_derived_run` re-enters the policy gate. Transcript numbers never auto-dial.
+- [x] **P1** Expiry rendering (`attested … · valid until …`) in the console.
+- [x] **P1** `ghostline/data/packs/supplier-crm.yaml` + `examples/suppliers-sample.csv`.
+- [x] **P2** `ghostline/data/packs/community-services.yaml` (config-only, incl. an enum claim).
 
-## Day 10 — all 13 cherries (Sep 9)
+## Day 10 — cherries (Sep 9) — **done early (7 of 13)**
 
-Build in master doc §4.12 order; each independently demoable; none touches call engine / policy gate.
+- [x] **P1** (j) mode indicator in the topbar (budget meter is placeholder until live credit tracking)
+- [x] **P1** (g) duplicate-number guard — `runs.duplicate_number_groups`
+- [x] **P1** (l) "try it yourself" QR code (server-rendered SVG via `segno`)
+- [x] **P1** (h) confidence-tinted evidence span (`.evidence.c-high/medium/low`)
+- [x] **P1** (a) auto-generated claim pack — see Day 8
+- [-] **P1** (e) audio playback → D-010: confidence-colored transcript replay (no audio API); transcript view done
+- [x] **P1** (b) auto-suggested recheck interval — in the generator
+- [x] **P1** (d) plain-English batch summary — `runs._batch_summary`
+- [x] **P1** (m) per-number trust score — `store.trust_score` → badge in the record header
+- [ ] **P1** (i) re-verification diff view — `store.prior_attestation()` exists; needs the two-column render
+- [ ] **P1** (c) auto-escalation suggestion on low-trust sources — wire to the derived-call button
+- [ ] **P1** (k) timezone-aware call scheduling — `_local_hour` exists; needs queue sort
+- [x] **P1** (f) "explain this verdict" — `evaluation_reason` shown inline
 
-- [ ] **P1** (j) live call-budget meter
-- [ ] **P1** (g) duplicate-number guard (group-by on upload)
-- [ ] **P1** (l) "try it yourself" QR code → manual-entry form
-- [ ] **P1** (h) confidence-colored transcript / evidence span
-- [ ] **P1** (a) auto-generated claim pack *(if not finished Day 8)*
-- [ ] **P1** (e) private per-call audio playback (initiator-only; never in public video unless own/listener's voice)
-- [ ] **P1** (b) auto-suggested recheck interval *(if not finished Day 8)*
-- [ ] **P1** (d) plain-English batch summary
-- [ ] **P1** (m) per-number trust score
-- [ ] **P1** (i) re-verification diff view *(if not finished Day 9)*
-- [ ] **P1** (c) auto-escalation suggestion on low-trust sources
-- [ ] **P1** (k) timezone-aware call scheduling (area-code lookup table)
-- [ ] **P1** (f) "explain this verdict" one-click expansion
-- [ ] `core/summarizer.py` (§4.12d/f) and `core/cherries.py` (§4.12g/i/j/k/m) as small pure helpers, no new deps.
+## Day 11 — reliability benchmark (Sep 10) — **harness done; real numbers need entrant**
 
-## Day 11 — reliability benchmark (Sep 10)
-
-- [ ] **P0** `scripts/run_benchmark.py` → `benchmark/results.json` from **40–50 real/labelled calls** (own test lines + fixtures where live isn't warranted), human-labelled. UI reads from file only. (25 = contingency floor.)
-- [ ] **P0** Failure taxonomy populated in `results.json`; README confusion matrix.
+- [x] **P0** `ghostline/benchmark.py` + `scripts/run_benchmark.py` → `benchmark/results.json`. Fixture mode (deterministic pipeline check) + `--source live` mode (real calls vs a `label` column). Landing page reads the file; honest labelling ("pipeline check — not a live-call reliability number yet").
+- [ ] **P0** Run `--source live` against 25–50 real/labelled calls — **needs entrant + credits**.
 
 ## Day 12 — PR polish + demo (Sep 11)
 
-- [ ] **P0** `SKILL.md` complete (all sections listed in master doc §9).
-- [ ] **P0** `python3 scripts/validate_repository.py` green. Correct branch/folder per `git-naming-conventions.md`.
-- [ ] **P0** `README.md` complete; architecture diagram.
+- [x] **P0** `SKILL.md` complete; passes skill-validation rules (simulated).
+- [ ] **P0** `python3 scripts/validate_repository.py` green in the fork — **needs the fork + PR walkthrough**.
+- [x] **P0** `README.md` — problem/thesis/mechanism/quick-start/CALL-E/mermaid architecture/skill/extending/tests/safety/deploy/limitations.
 - [ ] **P0** Record video ≤ 3:00 (target 2:35–2:45). Fictional data only. Shot list = master doc §10.2 (incl. UNCLEAR beat, derived-call beat, auto-pack + audio beat, pack-swap beat).
 
 ## Day 13 — SUBMIT (Sep 12)

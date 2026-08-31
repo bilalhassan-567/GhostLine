@@ -48,6 +48,26 @@ Format: `[YYYY-MM-DD] AREA — observation → suggested fix (impact)`
   carry them (only `CALL-E-Event-Id` is specified). → Document the signature header names in the
   webhook section. (Impact: medium — blocks secure webhook adoption.)
 
+- **[2026-08-31] Building the webhook path, the signature-header gap actually bit.**
+  `client.webhooks.unwrap(raw_body, headers, secret)` is the right call for a serverless
+  receiver, but with no documented header names there's no way to write a conformance test or
+  reason about failure modes without a live webhook to inspect. A two-line "we send
+  `CALL-E-Signature` and `CALL-E-Timestamp`" (or whatever they are) in the webhook docs would
+  unblock this entirely. (Impact: medium-high for anyone on Vercel/Cloudflare/Lambda.)
+
+- **[2026-08-31] Result shape differs between `calls` and `goals`.** One-shot calls return
+  `structured_result` + `evidence` (array) + `completion_confidence`; goal runs return
+  `result` XOR `error` with a clean `GoalRunError` enum. An integrator who prototypes with
+  `calls` and later moves reusable workflows to `goals` has to rewrite their result handling.
+  A shared "terminal outcome" envelope, or at least a mapping table in the docs, would help.
+  (Impact: medium.)
+
+- **[2026-08-31] `result_schema` silently drops unsupported constructs.** The docs list what's
+  supported (`type/properties/required/enum/...`) and what isn't (`$ref/oneOf/anyOf/...`), but
+  it's unclear whether an unsupported construct is rejected at `create` time or silently
+  ignored during extraction. A `result_schema_invalid` error on `create` for anything
+  unsupported (rather than at extraction) would fail fast. (Impact: low-medium.)
+
 ## Onboarding
 
 - **[2026-08-31] No obvious "Sign up" entry point.** heycall-e.com's CTA is "START CALLING" →

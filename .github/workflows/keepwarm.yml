@@ -1,0 +1,21 @@
+name: keep-warm
+
+# Free serverless/host tiers sleep after idle. Ping the console every ~10 min during the
+# judging window so a judge never hits a cold start. Harmless if the host doesn't sleep.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping health
+        run: |
+          for url in \
+            "https://ghostline-one.vercel.app/health" \
+            "https://ghostline-one.vercel.app/"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 25 "$url" || echo "fail")
+            echo "$url -> $code"
+          done

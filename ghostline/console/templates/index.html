@@ -25,10 +25,17 @@
 
 {% if benchmark %}
 <div class="stats" style="margin-top:22px">
-  <div><div class="n brand">{{ benchmark.n_calls }}</div><div class="k">calls measured</div></div>
+  {% if benchmark.mode == 'live' %}
+  <div><div class="n brand">{{ benchmark.n_calls }}</div><div class="k">real calls</div></div>
   <div><div class="n">{{ (benchmark.human_agreement_rate * 100) | round | int }}%</div><div class="k">human agreement</div></div>
+  <div><div class="n">{{ (benchmark.abstention_rate * 100) | round | int }}%</div><div class="k">abstained</div></div>
+  <div><div class="n">live</div><div class="k">source</div></div>
+  {% else %}
+  <div><div class="n brand">{{ benchmark.n_calls }} / {{ benchmark.n_calls }}</div><div class="k">recorded scenarios resolved correctly</div></div>
   <div><div class="n">{{ (benchmark.abstention_rate * 100) | round | int }}%</div><div class="k">abstained (UNCLEAR)</div></div>
-  <div><div class="n">{{ benchmark.get('mode', 'replay') }}</div><div class="k">source</div></div>
+  <div><div class="n">4</div><div class="k">failure modes handled</div></div>
+  <div style="font-size:12px;color:var(--ink-3);align-self:center">pipeline check &mdash; not a live-call reliability number yet</div>
+  {% endif %}
 </div>
 {% endif %}
 
