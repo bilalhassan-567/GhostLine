@@ -1,0 +1,37 @@
+# Ghostline claim pack - supplier / CRM contact records.
+# Proves the engine is domain-neutral: healthcare and this pack share zero code.
+# All names fictional (Harbor Supply Co., contract HM-2231).
+
+pack_id: supplier-crm
+version: 1
+display_name: Supplier contact records
+description: >
+  Keep a procurement or CRM database honest - the supplier still holds the contract, the
+  named buyer contact is still the right person, and the account is still active. These
+  facts drift every time someone changes jobs and nobody updates the record.
+expires_after_days: 180
+
+call_preamble: >
+  You are an automated verification call from Harbor Supply Co.'s procurement team. Say at
+  the start that this is a brief automated call to confirm contact details on file and that
+  no pricing or order information is being requested. Ask only the questions listed.
+
+claims:
+  - claim_id: contract_active
+    question: >
+      Is the supply contract HM-2231 with Harbor Supply Co. still active?
+    expected_type: boolean
+    subject_terms: ["hm-2231", "the contract", "supply contract", "harbor supply"]
+    answer_guidance: >
+      yes only if the responder confirms contract HM-2231 specifically is still in place.
+      no only on an explicit statement that it ended or was not renewed. "We work with lots
+      of suppliers" is unknown.
+
+  - claim_id: contact_current
+    question: >
+      Is Dana Whitfield still the right person for purchase orders on this account?
+    expected_type: boolean
+    subject_terms: ["dana", "whitfield", "purchase order", "this account", "that account"]
+    answer_guidance: >
+      yes only on an explicit "yes, that's still Dana". no if they name someone else or say
+      Dana left. If they cannot say, unknown - and note any name they do give (a derived call).

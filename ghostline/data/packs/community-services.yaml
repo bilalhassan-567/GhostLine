@@ -1,0 +1,34 @@
+# Ghostline claim pack - community-services directory (e.g. a 211-style resource list).
+# Config-only example: proves the fork-and-extend claim in ~15 lines. Not demoed on camera.
+
+pack_id: community-services
+version: 1
+display_name: Community services directory
+description: >
+  Resource directories (food banks, shelters, legal aid, clinics) go stale fast and the
+  people who rely on them cannot afford a wasted trip. Verify the basics by phone.
+expires_after_days: 30
+
+call_preamble: >
+  You are an automated call verifying a community-services directory listing. Say so at the
+  start, keep it under a minute, and ask only the questions listed.
+
+claims:
+  - claim_id: still_operating
+    question: Is this service still operating at this location?
+    expected_type: boolean
+    subject_terms: ["operating", "open", "still here", "still running", "closed"]
+    answer_guidance: yes on an explicit confirmation; no if closed, moved, or paused; else unknown.
+
+  - claim_id: hours_current
+    question: Are the listed hours, weekdays 9am to 4pm, still correct?
+    expected_type: boolean
+    subject_terms: ["hours", "9", "4pm", "weekday", "open until", "close at"]
+    answer_guidance: yes only if they confirm those exact hours; no if different; unknown if unsure.
+
+  - claim_id: appointment_required
+    question: Is an appointment required, or can people walk in?
+    expected_type: enum
+    enum_values: ["appointment", "walk_in", "both"]
+    subject_terms: ["appointment", "walk in", "walk-in", "drop in"]
+    answer_guidance: Use the option they state plainly; unknown if they do not say.

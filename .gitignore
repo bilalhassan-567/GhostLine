@@ -14,15 +14,16 @@ __pycache__/
 build/
 dist/
 
-# Local data / generated
+# Local data / generated  (repo-root /data/ only — NOT the packaged ghostline/data/)
 *.db
 *.sqlite3
 *.sqlite
-data/
+/data/
 call_audio/
 benchmark/*.wav
 benchmark/*.mp3
-corrections*.csv
+/corrections*.csv
+corrections-*.csv
 !examples/**/corrections*.csv
 
 # IDE / OS
