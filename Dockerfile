@@ -12,7 +12,8 @@ COPY pyproject.toml README.md ./
 COPY ghostline ./ghostline
 COPY examples ./examples
 COPY replay ./replay
-RUN pip install --no-cache-dir .
+# Editable install so REPO_ROOT resolves to /app (where examples/ and replay/ live).
+RUN pip install --no-cache-dir -e .
 
 # HF Spaces routes to port 7860 by default.
 EXPOSE 7860
