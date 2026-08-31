@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "scenario": "UNCLEAR — hedged, non-committal answer with no definite statement",
+    "pack": "healthcare",
+    "claim_id": "accepting_new_patients",
+    "record": {
+      "record_id": "provider_005",
+      "name": "Riverbend Family Care",
+      "phone": "+12025550150",
+      "claims": { "accepting_new_patients": true }
+    },
+    "expected_verdict": "UNCLEAR",
+    "expected_tags": ["AMBIGUOUS"],
+    "note": "Responder never actually commits. No verbatim span supports a yes or no."
+  },
+  "id": "call_fixture05",
+  "object": "call_task",
+  "status": "completed",
+  "structured_result": { "accepting_new_patients": "unknown" },
+  "task_completed": false,
+  "completion_confidence": { "score": 0.41, "label": "low" },
+  "failure_code": null,
+  "completed_at": "2026-09-01T19:04:00Z",
+  "recipients": [
+    {
+      "id": "rcp_05", "phones": ["+12025550150"], "region": "US", "status": "completed",
+      "structured_result": { "accepting_new_patients": "unknown" },
+      "attempts": [
+        {
+          "id": "att_05", "phone": "+12025550150", "status": "completed",
+          "started_at": "2026-09-01T19:03:00Z", "completed_at": "2026-09-01T19:04:00Z",
+          "provider_call_id": "prov_05", "failure_code": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "bot", "text": "Automated verification call. Is this office currently accepting new patients?" },
+            { "offset_seconds": 5, "speaker": "user", "text": "Um, that kind of depends, you'd really have to talk to the scheduling team about that." },
+            { "offset_seconds": 12, "speaker": "bot", "text": "Are you able to say yes or no today?" },
+            { "offset_seconds": 16, "speaker": "user", "text": "I honestly couldn't tell you, sorry." }
+          ]
+        }
+      ]
+    }
+  ]
+}

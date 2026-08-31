@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "scenario": "NO_CONTACT — call failed before a conversation could happen",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_004",
+      "name": "Lakeside Health Partners",
+      "phone": "+12025550140",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "NO_CONTACT",
+    "expected_tags": ["CALL_FAILED"],
+    "note": "Generic terminal failure. Never becomes a correction; may trigger a retry."
+  },
+  "id": "call_fixture04",
+  "object": "call_task",
+  "status": "failed",
+  "structured_result": null,
+  "task_completed": null,
+  "completion_confidence": null,
+  "failure_code": "call_failed",
+  "failure_message": "The call could not be connected.",
+  "completed_at": "2026-09-01T18:00:40Z",
+  "recipients": [
+    {
+      "id": "rcp_04", "phones": ["+12025550140"], "region": "US", "status": "failed",
+      "structured_result": null,
+      "attempts": [
+        {
+          "id": "att_04", "phone": "+12025550140", "status": "failed",
+          "started_at": "2026-09-01T18:00:10Z", "completed_at": "2026-09-01T18:00:40Z",
+          "provider_call_id": "prov_04",
+          "failure_code": "call_failed", "failure_message": "Carrier rejected the call.",
+          "transcript_turns": []
+        }
+      ]
+    }
+  ]
+}

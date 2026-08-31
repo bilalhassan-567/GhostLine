@@ -1,0 +1,53 @@
+# Ghostline claim pack — health-plan provider directory verification (flagship evidence case).
+#
+# All names here are FICTIONAL. "Northline Health" is a made-up plan; "Northline Family Clinic"
+# a made-up practice. No real insurer, plan, or provider appears anywhere in this repo.
+#
+# Evidence behind this domain (see master doc §2.2 / §9): CMS found 48.74% of Medicare
+# Advantage directory locations had >=1 inaccuracy; the No Surprises Act sets a 90-day
+# re-verification standard — mirrored below as expires_after_days: 90.
+
+pack_id: healthcare
+version: 1
+display_name: Health-plan provider directory
+description: >
+  Verify that a provider listing is still reachable, still accepts the named plan, and is
+  still accepting new patients — the three facts that rot fastest in a payer directory and
+  that live only in a front-desk staffer's head.
+expires_after_days: 90
+
+call_preamble: >
+  You are an automated verification call on behalf of Northline Health. Disclose at the very
+  start that this is an automated call, that it will take under a minute, and that no patient
+  or personal information is being requested. Speak to whoever answers. Ask only the questions
+  listed, one at a time, and do not offer medical advice or make appointments.
+
+claims:
+  - claim_id: accepts_plan
+    question: >
+      Does this office currently accept patients who are covered by the Northline Health plan?
+    expected_type: boolean
+    subject_terms: ["northline health", "northline", "that plan", "the plan"]
+    answer_guidance: >
+      TRUE only if the responder explicitly confirms Northline Health specifically is accepted.
+      "We take most major/commercial plans" is NOT a confirmation of Northline Health — treat
+      that as unknown. FALSE only if they explicitly say Northline Health is not accepted or
+      was dropped.
+
+  - claim_id: accepting_new_patients
+    question: >
+      Is this office currently accepting new patients?
+    expected_type: boolean
+    subject_terms: ["new patients", "new patient", "accepting patients", "taking patients"]
+    answer_guidance: >
+      TRUE only on an explicit "yes, we are accepting new patients". FALSE on an explicit
+      "no / not right now / waitlist only". Anything hedged or conditional is unknown.
+
+  - claim_id: address_current
+    question: >
+      Is this office still located at the address on file, {address}?
+    expected_type: boolean
+    subject_terms: ["address", "located", "location", "moved", "street", "suite"]
+    answer_guidance: >
+      TRUE if the responder confirms that address. FALSE if they give a different address or
+      say they have moved. Unknown if they cannot say.

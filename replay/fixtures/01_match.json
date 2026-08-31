@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "scenario": "MATCH — front desk explicitly confirms the named plan",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_001",
+      "name": "Northline Family Clinic",
+      "phone": "+12025550110",
+      "address": "1420 Oak St, Suite 300",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "MATCH",
+    "expected_tags": [],
+    "note": "Asserted TRUE, responder confirms Northline Health by name -> resolved."
+  },
+  "id": "call_fixture01",
+  "object": "call_task",
+  "status": "completed",
+  "task": "Automated verification call for Northline Health.",
+  "structured_result": { "accepts_plan": "yes" },
+  "summary": "Front desk confirmed the office accepts Northline Health.",
+  "task_completed": true,
+  "completion_confidence": { "score": 0.94, "label": "high" },
+  "evidence": ["The front desk said they accept Northline Health."],
+  "metadata": { "record_id": "provider_001" },
+  "failure_code": null,
+  "failure_message": null,
+  "created_at": "2026-09-01T15:00:00Z",
+  "completed_at": "2026-09-01T15:01:10Z",
+  "recipients": [
+    {
+      "id": "rcp_01",
+      "phones": ["+12025550110"],
+      "locale": "en-US",
+      "region": "US",
+      "status": "completed",
+      "structured_result": { "accepts_plan": "yes" },
+      "summary": "Confirmed.",
+      "attempts": [
+        {
+          "id": "att_01",
+          "phone": "+12025550110",
+          "status": "completed",
+          "started_at": "2026-09-01T15:00:05Z",
+          "completed_at": "2026-09-01T15:01:10Z",
+          "summary": "Confirmed Northline Health accepted.",
+          "provider_call_id": "prov_01",
+          "failure_code": null,
+          "failure_message": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "bot", "text": "Hi, this is an automated verification call on behalf of Northline Health. It will take under a minute and I am not requesting any patient information. Does this office currently accept patients covered by the Northline Health plan?" },
+            { "offset_seconds": 9, "speaker": "user", "text": "Yes, we do accept Northline Health, we've taken that plan for years." },
+            { "offset_seconds": 15, "speaker": "bot", "text": "Thank you, that's all I needed. Have a good day." }
+          ]
+        }
+      ]
+    }
+  ]
+}

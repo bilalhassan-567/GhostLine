@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "scenario": "UNCLEAR — responder says yes then reverses within the same call",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_006",
+      "name": "Summit Street Clinic",
+      "phone": "+12025550160",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "UNCLEAR",
+    "expected_tags": ["CONFLICTING"],
+    "note": "A real answer was given, but it is not a reliable one. Abstain."
+  },
+  "id": "call_fixture06",
+  "object": "call_task",
+  "status": "completed",
+  "structured_result": { "accepts_plan": "unknown" },
+  "task_completed": false,
+  "completion_confidence": { "score": 0.5, "label": "medium" },
+  "failure_code": null,
+  "completed_at": "2026-09-01T20:05:00Z",
+  "recipients": [
+    {
+      "id": "rcp_06", "phones": ["+12025550160"], "region": "US", "status": "completed",
+      "structured_result": { "accepts_plan": "unknown" },
+      "attempts": [
+        {
+          "id": "att_06", "phone": "+12025550160", "status": "completed",
+          "started_at": "2026-09-01T20:04:00Z", "completed_at": "2026-09-01T20:05:00Z",
+          "provider_call_id": "prov_06", "failure_code": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "bot", "text": "Do you currently accept the Northline Health plan?" },
+            { "offset_seconds": 5, "speaker": "user", "text": "Yes, we accept Northline Health." },
+            { "offset_seconds": 9, "speaker": "user", "text": "Wait, actually, I'm not sure. I think we might have dropped Northline Health this year. Let me not say for certain." }
+          ]
+        }
+      ]
+    }
+  ]
+}

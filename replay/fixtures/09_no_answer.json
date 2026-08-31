@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "scenario": "NO_CONTACT — rang out, nobody picked up",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_009",
+      "name": "Fair Oaks Clinic",
+      "phone": "+12025550190",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "NO_CONTACT",
+    "expected_tags": ["NO_ANSWER"],
+    "note": "Goal-path error shape (code=no_answer, detail_code=no_human_answered) folded into a failed CallTask."
+  },
+  "id": "call_fixture09",
+  "object": "call_task",
+  "status": "failed",
+  "structured_result": null,
+  "task_completed": null,
+  "completion_confidence": null,
+  "failure_code": "no_answer",
+  "failure_message": "No human answered the call.",
+  "completed_at": "2026-09-01T23:01:12Z",
+  "recipients": [
+    {
+      "id": "rcp_09", "phones": ["+12025550190"], "region": "US", "status": "failed",
+      "structured_result": null,
+      "attempts": [
+        {
+          "id": "att_09", "phone": "+12025550190", "status": "failed",
+          "started_at": "2026-09-01T23:00:12Z", "completed_at": "2026-09-01T23:01:12Z",
+          "provider_call_id": "prov_09",
+          "failure_code": "no_answer", "failure_message": "No human answered the call.",
+          "transcript_turns": []
+        }
+      ]
+    }
+  ]
+}

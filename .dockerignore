@@ -1,0 +1,16 @@
+.venv/
+.git/
+.idea/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+tests/
+Docs/
+*.db
+*.sqlite3
+.env
+.env.*
+!.env.example
+corrections*.csv
+scratchpad/

@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "scenario": "NO_CONTACT — call reached a voicemail greeting, no human",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_007",
+      "name": "Meadowbrook Associates",
+      "phone": "+12025550170",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "NO_CONTACT",
+    "expected_tags": ["VOICEMAIL"],
+    "note": "status=completed but only a machine greeting -> no user speech -> NO_CONTACT. Real failure_code string TBD from Day-1 live calls."
+  },
+  "id": "call_fixture07",
+  "object": "call_task",
+  "status": "completed",
+  "structured_result": null,
+  "task_completed": false,
+  "completion_confidence": { "score": 0.1, "label": "low" },
+  "failure_code": null,
+  "completed_at": "2026-09-01T21:00:30Z",
+  "recipients": [
+    {
+      "id": "rcp_07", "phones": ["+12025550170"], "region": "US", "status": "completed",
+      "structured_result": null,
+      "attempts": [
+        {
+          "id": "att_07", "phone": "+12025550170", "status": "completed",
+          "started_at": "2026-09-01T21:00:05Z", "completed_at": "2026-09-01T21:00:30Z",
+          "provider_call_id": "prov_07", "failure_code": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "unknown", "text": "You have reached the offices of Meadowbrook Associates. We are not available to take your call. Please leave a message after the tone." }
+          ]
+        }
+      ]
+    }
+  ]
+}

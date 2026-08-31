@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "scenario": "NO_CONTACT — stuck in an IVR phone menu, never reached a person",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_008",
+      "name": "Grandview Medical Group",
+      "phone": "+12025550180",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "NO_CONTACT",
+    "expected_tags": ["IVR"],
+    "note": "Only bot/IVR turns, menu language. Candidate for an auto-escalation retry (cherry c)."
+  },
+  "id": "call_fixture08",
+  "object": "call_task",
+  "status": "completed",
+  "structured_result": null,
+  "task_completed": false,
+  "completion_confidence": { "score": 0.05, "label": "low" },
+  "failure_code": null,
+  "completed_at": "2026-09-01T22:01:00Z",
+  "recipients": [
+    {
+      "id": "rcp_08", "phones": ["+12025550180"], "region": "US", "status": "completed",
+      "structured_result": null,
+      "attempts": [
+        {
+          "id": "att_08", "phone": "+12025550180", "status": "completed",
+          "started_at": "2026-09-01T22:00:05Z", "completed_at": "2026-09-01T22:01:00Z",
+          "provider_call_id": "prov_08", "failure_code": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "unknown", "text": "Thank you for calling Grandview Medical Group. For English, press 1. Para espanol, marque 2." },
+            { "offset_seconds": 6, "speaker": "unknown", "text": "For appointments, press 1. For billing, press 2. For the main menu, press 9." },
+            { "offset_seconds": 14, "speaker": "unknown", "text": "We're sorry, we did not receive a valid response. Goodbye." }
+          ]
+        }
+      ]
+    }
+  ]
+}

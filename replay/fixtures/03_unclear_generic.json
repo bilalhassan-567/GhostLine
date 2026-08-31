@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "scenario": "UNCLEAR — 'we take most commercial plans' never names Northline Health",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_003",
+      "name": "Cedar Grove Practice",
+      "phone": "+12025550130",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "UNCLEAR",
+    "expected_tags": ["AMBIGUOUS"],
+    "note": "THE credibility fixture. CALL-E's own structured_result guesses 'yes' with high confidence; Ghostline abstains because no span names the plan."
+  },
+  "id": "call_fixture03",
+  "object": "call_task",
+  "status": "completed",
+  "structured_result": { "accepts_plan": "yes" },
+  "task_completed": true,
+  "completion_confidence": { "score": 0.86, "label": "high" },
+  "failure_code": null,
+  "completed_at": "2026-09-01T17:03:00Z",
+  "recipients": [
+    {
+      "id": "rcp_03", "phones": ["+12025550130"], "region": "US", "status": "completed",
+      "structured_result": { "accepts_plan": "yes" },
+      "attempts": [
+        {
+          "id": "att_03", "phone": "+12025550130", "status": "completed",
+          "started_at": "2026-09-01T17:02:00Z", "completed_at": "2026-09-01T17:03:00Z",
+          "provider_call_id": "prov_03", "failure_code": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "bot", "text": "Automated verification call for Northline Health. Do you currently accept patients covered by the Northline Health plan?" },
+            { "offset_seconds": 6, "speaker": "user", "text": "We take most major commercial plans here." },
+            { "offset_seconds": 11, "speaker": "bot", "text": "Do you specifically accept Northline Health?" },
+            { "offset_seconds": 15, "speaker": "user", "text": "You'd have to check your card, but we take pretty much everything." }
+          ]
+        }
+      ]
+    }
+  ]
+}

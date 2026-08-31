@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block body %}
+
+<div class="panel">
+  <h2>Verify a record</h2>
+  <form method="post" action="/verify" enctype="multipart/form-data">
+    <div class="row">
+      <div>
+        <label>Claim pack</label>
+        <select name="pack">
+          {% for p in packs %}<option value="{{ p.pack_id }}">{{ p.display_name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Mode</label>
+        <select name="mode">
+          <option value="replay">Replay &mdash; explore recorded scenarios, no calls</option>
+          <option value="live"{% if not settings.has_calle %} disabled{% endif %}>
+            Live &mdash; place a real CALL-E call{% if not settings.has_calle %} (CALLE_API_KEY not set){% endif %}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top:16px">Type one record &mdash; the same form everyone uses.
+      In Live mode Ghostline calls the number you enter.</p>
+    <div class="row">
+      <div><label>Name</label><input name="name" placeholder="Northline Family Clinic"></div>
+      <div><label>Phone (E.164)</label><input name="phone" placeholder="+1202555xxxx"></div>
+      <div style="max-width:110px"><label>Region</label><input name="region" value="US"></div>
+    </div>
+    <div class="row">
+      {% for c in pack.claims %}
+      <div>
+        <label>{{ c.claim_id }} &mdash; asserted</label>
+        <select name="claim__{{ c.claim_id }}">
+          <option value="">(not asserting)</option>
+          <option value="yes">yes / true</option>
+          <option value="no">no / false</option>
+        </select>
+      </div>
+      {% endfor %}
+    </div>
+
+    <p class="muted" style="margin-top:16px">&hellip; or upload a CSV
+      (<code>record_id,name,phone,region,&lt;claim&gt;&hellip;</code>)</p>
+    <input type="file" name="csv_file" accept=".csv">
+
+    <p style="margin-top:18px"><button type="submit">Verify</button></p>
+  </form>
+</div>
+
+<div class="panel">
+  <h2>Replay scenarios</h2>
+  <p class="muted">The full pipeline over 9 recorded calls &mdash; every verdict state, zero live calls.</p>
+  <div class="scenarios">
+    {% for stem, label in scenarios %}<a class="btn ghost" href="/replay/{{ stem }}">{{ label }}</a>{% endfor %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Run {{ run.id }} — Ghostline{% endblock %}
+{% block body %}
+
+<div class="panel">
+  <h2>Run {{ run.id }} &mdash; {{ run.mode }} &mdash; <span id="runstatus">{{ run.status }}</span></h2>
+  {% if run.error %}<p class="chip mismatch">error</p><p class="muted">{{ run.error }}</p>{% endif %}
+
+  {% for rr in run.records %}
+  <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:14px">
+    <strong>{{ rr.record.name or rr.record.record_id }}</strong>
+    <span class="muted">{{ rr.dial_e164 or rr.record.phone }} &mdash; {{ rr.status }}</span>
+
+    {% for m in rr.messages %}{% if m %}<div class="muted">• {{ m }}</div>{% endif %}{% endfor %}
+
+    {% for a in rr.attestations %}
+    <div style="margin:12px 0">
+      <span class="chip {{ chip_class(a.verdict) }}">{{ a.verdict.value }}</span>
+      <span class="muted">{{ a.claim_id }}
+        {%- if a.asserted_value is not none %} &mdash; asserted {{ a.asserted_value }}{% endif %}</span>
+      {% if a.evidence_span %}
+        <div class="evidence">&ldquo;{{ a.evidence_span }}&rdquo;
+          <span class="muted">&mdash; {{ a.source_role.value }}, {{ a.confidence.value }} confidence</span></div>
+      {% endif %}
+      <div class="muted">{{ a.evaluation_reason }}</div>
+      {% if a.diagnostic_tags %}<div class="muted">tags: {{ a.diagnostic_tags | map(attribute='value') | join(', ') }}</div>{% endif %}
+      {% if a.expires_at %}<div class="muted">attested {{ a.attested_at.strftime('%Y-%m-%d') }}
+        &mdash; valid until {{ a.expires_at.strftime('%Y-%m-%d') }}</div>{% endif %}
+      {% if a.calle_confidence_label %}
+        <div class="muted">CALL-E's own read: {{ a.calle_structured_result }} ({{ a.calle_confidence_label }})</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if rr.transcript and rr.transcript.turns %}
+    <details>
+      <summary class="muted">transcript</summary>
+      <div class="transcript">
+        {% set span = rr.attestations[0].evidence_span if rr.attestations else None %}
+        {% for t in rr.transcript.turns %}
+        <div class="{{ t.speaker.value }}">
+          <span class="muted">[{{ t.speaker.value }}]</span> {{ highlight(t.text, span) }}
+        </div>
+        {% endfor %}
+      </div>
+    </details>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <p style="margin-top:20px">
+    <a class="btn" href="/run/{{ run.id }}/corrections.csv">Download corrections.csv</a>
+    <a class="btn ghost" href="/">New verification</a>
+  </p>
+</div>
+
+{% endblock %}
+{% block script %}
+{% if run.status == "running" %}
+<script>
+(async function poll(){
+  try{
+    const r = await fetch("/api/run/{{ run.id }}");
+    const d = await r.json();
+    document.getElementById("runstatus").textContent = d.status;
+    if(d.status === "running"){ setTimeout(poll, 2500); }
+    else { location.reload(); }
+  }catch(e){ setTimeout(poll, 4000); }
+})();
+</script>
+{% endif %}
+{% endblock %}

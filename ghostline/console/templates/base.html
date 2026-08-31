@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Ghostline{% endblock %}</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --line:#262b36; --ink:#e8eaed; --dim:#9aa3b2;
+    --match:#37b26b; --mismatch:#e0564f; --unclear:#e0a53f; --nocontact:#7d8794; --accent:#6ea8fe;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  a{color:var(--accent)}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px}
+  header .thesis{color:var(--dim);margin:.3em 0 0}
+  .lifecycle{font-variant:small-caps;letter-spacing:.06em;color:var(--dim);
+    border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:inline-block;margin:14px 0}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}
+  h1{font-size:26px;margin:0}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:0 0 12px}
+  label{display:block;font-size:13px;color:var(--dim);margin:10px 0 4px}
+  input,select{width:100%;background:#0e1116;border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:9px 11px;font:inherit}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:180px}
+  button,.btn{background:var(--accent);color:#0b1020;border:0;border-radius:8px;padding:10px 16px;
+    font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+  .muted{color:var(--dim);font-size:13px}
+  .chip{display:inline-block;font-weight:700;font-size:12px;letter-spacing:.05em;
+    padding:3px 8px;border-radius:6px;text-transform:uppercase}
+  .chip.match{background:rgba(55,178,107,.15);color:var(--match)}
+  .chip.mismatch{background:rgba(224,86,79,.15);color:var(--mismatch)}
+  .chip.unclear{background:rgba(224,165,63,.15);color:var(--unclear)}
+  .chip.nocontact{background:rgba(125,135,148,.15);color:var(--nocontact)}
+  .evidence{border-left:3px solid var(--accent);padding:6px 12px;margin:8px 0;background:#0e1116;border-radius:0 6px 6px 0}
+  .transcript div{margin:4px 0}
+  .transcript .bot{color:var(--dim)}
+  .transcript .user{color:var(--ink)}
+  .transcript mark{background:rgba(110,168,254,.25);color:inherit;padding:0 2px;border-radius:3px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
+  .scenarios a{display:inline-block;margin:4px 6px 0 0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Ghostline</h1>
+    <p class="thesis">It doesn't claim truth. It records what a specific human source said &mdash;
+      with their exact words &mdash; and tells you when reality has moved on.</p>
+    <div class="lifecycle">asserted &rarr; verified &rarr; evidenced &rarr; corrected &rarr; expired &rarr; re-verified</div>
+  </header>
+  {% block body %}{% endblock %}
+  <p class="muted" style="margin-top:40px">
+    <a href="/">home</a> &nbsp;·&nbsp; <a href="/replay">replay all scenarios</a>
+    &nbsp;·&nbsp; <a href="/health">health</a>
+  </p>
+</div>
+{% block script %}{% endblock %}
+</body>
+</html>

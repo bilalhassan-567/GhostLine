@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "scenario": "MISMATCH — office dropped the named plan",
+    "pack": "healthcare",
+    "claim_id": "accepts_plan",
+    "record": {
+      "record_id": "provider_002",
+      "name": "Harbor Point Medical",
+      "phone": "+12025550120",
+      "address": "88 Marina Way",
+      "claims": { "accepts_plan": true }
+    },
+    "expected_verdict": "MISMATCH",
+    "expected_tags": [],
+    "note": "Asserted TRUE, responder explicitly denies -> this row belongs in corrections.csv."
+  },
+  "id": "call_fixture02",
+  "object": "call_task",
+  "status": "completed",
+  "structured_result": { "accepts_plan": "no" },
+  "task_completed": true,
+  "completion_confidence": { "score": 0.9, "label": "high" },
+  "failure_code": null,
+  "completed_at": "2026-09-01T16:02:00Z",
+  "recipients": [
+    {
+      "id": "rcp_02", "phones": ["+12025550120"], "region": "US", "status": "completed",
+      "structured_result": { "accepts_plan": "no" },
+      "attempts": [
+        {
+          "id": "att_02", "phone": "+12025550120", "status": "completed",
+          "started_at": "2026-09-01T16:01:00Z", "completed_at": "2026-09-01T16:02:00Z",
+          "provider_call_id": "prov_02", "failure_code": null,
+          "transcript_turns": [
+            { "offset_seconds": 0, "speaker": "bot", "text": "Automated verification call for Northline Health. Does this office currently accept the Northline Health plan?" },
+            { "offset_seconds": 7, "speaker": "user", "text": "No, we stopped accepting that plan last month. We don't take Northline Health anymore." },
+            { "offset_seconds": 13, "speaker": "bot", "text": "Understood, thank you." }
+          ]
+        }
+      ]
+    }
+  ]
+}
