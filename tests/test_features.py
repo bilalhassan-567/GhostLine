@@ -88,3 +88,28 @@ def test_webhook_resolution_and_kv_roundtrip():
     rr = runs.get_run("wtest").records[0]
     assert rr.status == "done"
     assert rr.attestations[0].verdict.value == "MATCH"
+
+
+def test_reverification_diff_fires_when_verdict_changes():
+    from ghostline.console import runs
+    from ghostline.models import Attestation, Verdict
+    from ghostline.store import Ledger
+
+    rid = "diff_rx_" + str(id(object()))  # unique so prior runs don't pollute
+    led = Ledger()
+    led.record(
+        Attestation(record_id=rid, claim_id="accepts_plan", pack_ref="healthcare@1",
+                    verdict=Verdict.MATCH, answer_text="yes we take it", evidence_span="x"),
+        phone_e164="+12025550110",
+    )
+    led.close()
+
+    run = runs.Run(id="diffrun", mode="live", pack_ref="healthcare")
+    rr = runs.RecordRun(record=Record(record_id=rid, name="X", phone="+12025550110", claims={}))
+    rr.attestations = [
+        Attestation(record_id=rid, claim_id="accepts_plan", pack_ref="healthcare@1",
+                    verdict=Verdict.MISMATCH, answer_text="no we dropped it", evidence_span="y")
+    ]
+    run.records = [rr]
+    runs._attach_diff(run)
+    assert rr.diff and rr.diff[0]["was"] == "MATCH" and rr.diff[0]["now"] == "MISMATCH"

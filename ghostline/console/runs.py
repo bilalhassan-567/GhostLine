@@ -37,6 +37,7 @@ class RecordRun:
     dial_e164: str | None = None
     derived: DerivedProposal | None = None
     trust: dict | None = None         # cherry (m): per-number history badge
+    diff: list[dict] = field(default_factory=list)  # cherry (i): what changed since last time
 
 
 @dataclass
@@ -91,6 +92,15 @@ def duplicate_number_groups(records: list[Record]) -> list[list[str]]:
     return [ids for ids in by_phone.values() if len(ids) > 1]
 
 
+def order_by_local_time(records: list[Record]) -> list[Record]:
+    """Cherry (k): call records whose region is closest to mid-business-hours first, so calls
+    land while someone is there to answer. A sort step, not a scheduler."""
+    from ..policy_gate import _local_hour
+
+    now = datetime.now(UTC)
+    return sorted(records, key=lambda r: abs(_local_hour(now, r.region) - 13))
+
+
 # --------------------------------------------------------------------------------------
 def start_replay_run(scenario: str | None = None) -> Run:
     from ..pipeline import resolve_claim
@@ -117,7 +127,7 @@ def start_replay_run(scenario: str | None = None) -> Run:
 def start_live_run(records: list[Record], pack_id: str, credits_remaining: int | None) -> Run:
     pack = load_pack(pack_id)
     run = Run(id=uuid.uuid4().hex[:12], mode="live", pack_ref=pack.ref)
-    for rec in records:
+    for rec in order_by_local_time(records):
         run.records.append(RecordRun(record=rec))
     for group in duplicate_number_groups(records):
         run.records[0].messages.append(
@@ -260,10 +270,52 @@ def _live_worker(run_id: str, pack_id: str, credits_remaining: int | None) -> No
 
 # --------------------------------------------------------------------------------------
 def _finalise(run: Run) -> None:
+    _attach_diff(run)      # cherry (i): compare against the previous attestation, before we write
     _ledger_write(run)
-    _attach_trust(run)
+    _attach_trust(run)     # cherry (m): after the write, so this run counts
+    _escalation_hints(run)  # cherry (c)
     run.summary = _batch_summary(run)
     _put(run)
+
+
+def _attach_diff(run: Run) -> None:
+    try:
+        ledger = Ledger()
+        for rr in run.records:
+            for a in rr.attestations:
+                prior = ledger.prior_attestation(a.record_id, a.claim_id)
+                if prior and prior["verdict"] != a.verdict.value:
+                    rr.diff.append(
+                        {
+                            "claim_id": a.claim_id,
+                            "was": prior["verdict"],
+                            "was_value": prior.get("answer_text") or prior.get("asserted_value"),
+                            "now": a.verdict.value,
+                            "now_value": a.answer_text,
+                            "since": prior["attested_at"][:10],
+                        }
+                    )
+        ledger.close()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[ghostline] diff lookup skipped: {exc!s}")
+
+
+def _escalation_hints(run: Run) -> None:
+    """Cherry (c): a low-trust source is a candidate for a follow-up during business hours."""
+    low = {"answering_service", "voicemail", "ivr_only", "unknown"}
+    for rr in run.records:
+        if rr.derived is not None:
+            continue
+        for a in rr.attestations:
+            if a.source_role.value in low and a.verdict.value in ("MATCH", "MISMATCH", "UNCLEAR"):
+                rr.derived = DerivedProposal(
+                    kind="escalation",
+                    detail=a.source_role.value,
+                    reason=f"This answer came from {a.source_role.value.replace('_', ' ')}. "
+                    "Approve a follow-up call during business hours to reach the front desk directly.",
+                    goal_hint="Ask to be put through to the front desk, then re-ask the questions.",
+                )
+                break
 
 
 def _batch_summary(run: Run) -> str:

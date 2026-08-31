@@ -66,6 +66,17 @@
     </div>
     {% endfor %}
 
+    {% if rr.diff %}
+    <div class="banner" style="border-color:var(--line);background:var(--panel);color:var(--ink-2)">
+      <b>What changed since last time</b>
+      {% for d in rr.diff %}
+      <div class="muted" style="margin-top:6px">{{ d.claim_id }}:
+        <span class="chip {{ chip_class_str(d.was) }}">{{ d.was }}</span> ({{ d.since }})
+        &rarr; <span class="chip {{ chip_class_str(d.now) }}">{{ d.now }}</span></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% if rr.transcript and rr.transcript.turns %}
     <details class="transcript">
       <summary>transcript &middot; {{ rr.transcript.turns | length }} turns</summary>

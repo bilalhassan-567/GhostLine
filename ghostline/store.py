@@ -16,8 +16,13 @@ from pathlib import Path
 from .config import REPO_ROOT
 from .models import Attestation
 
-# Honour GHOSTLINE_DB; default to the repo root locally. On a read-only host set it to /tmp.
-DEFAULT_DB = Path(os.environ.get("GHOSTLINE_DB") or (REPO_ROOT / "ghostline.db"))
+
+def _default_db() -> Path:
+    # Resolved per call so tests / hosts can set GHOSTLINE_DB after import.
+    return Path(os.environ.get("GHOSTLINE_DB") or (REPO_ROOT / "ghostline.db"))
+
+
+DEFAULT_DB = _default_db()  # kept for back-compat / callers that import it
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS attestations (
@@ -48,8 +53,8 @@ CREATE INDEX IF NOT EXISTS idx_att_run ON attestations(run_id);
 
 
 class Ledger:
-    def __init__(self, path: str | Path = DEFAULT_DB) -> None:
-        self.path = str(path)
+    def __init__(self, path: str | Path | None = None) -> None:
+        self.path = str(path or _default_db())
         self._conn = sqlite3.connect(self.path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(_SCHEMA)

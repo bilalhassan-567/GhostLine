@@ -1,7 +1,11 @@
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Keep the attestation ledger out of the repo during tests.
+os.environ.setdefault("GHOSTLINE_DB", str(Path(tempfile.gettempdir()) / "ghostline_test.db"))
 
 import pytest
 

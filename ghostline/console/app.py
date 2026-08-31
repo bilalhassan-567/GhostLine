@@ -64,7 +64,11 @@ _CHIP_CLASS = {
     Verdict.UNCLEAR: "unclear",
     Verdict.NO_CONTACT: "nocontact",
 }
+_CHIP_CLASS_STR = {
+    "MATCH": "match", "MISMATCH": "mismatch", "UNCLEAR": "unclear", "NO_CONTACT": "nocontact",
+}
 templates.env.globals["chip_class"] = lambda v: _CHIP_CLASS.get(v, "")
+templates.env.globals["chip_class_str"] = lambda v: _CHIP_CLASS_STR.get(v, "")
 templates.env.globals["CallOutcome"] = CallOutcome
 templates.env.globals["app_mode"] = lambda: get_settings().mode
 
