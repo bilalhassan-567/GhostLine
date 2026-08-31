@@ -25,7 +25,9 @@ push, or submission action.
 
 - **Do not run `git push` (or `gh pr create`, or any remote-mutating command) without
   explicit per-action permission from the entrant**, even after a remote is connected.
-- `git init`, local commits, local branches: allowed once the entrant says git is set up.
+- `git init`, local commits, local branches: allowed. **Done 2026-08-31** — repo initialized,
+  first commit `49e9d20`, author "Bilal Hassan <mbilalhassan567@gmail.com>", local only, no
+  remote yet.
 - Never `git push --force`, never `--no-verify`, never skip hooks or signing unless the
   entrant explicitly asks.
 - Never commit secrets (API keys, tokens, `.env`, call recordings, real phone numbers).
