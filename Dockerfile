@@ -11,8 +11,8 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY ghostline ./ghostline
 COPY examples ./examples
-COPY replay ./replay
-# Editable install so REPO_ROOT resolves to /app (where examples/ and replay/ live).
+# Editable install so REPO_ROOT resolves to /app. Default packs + fixtures are bundled
+# inside ghostline/data/, so this works even without the repo-root dirs.
 RUN pip install --no-cache-dir -e .
 
 # HF Spaces routes to port 7860 by default.

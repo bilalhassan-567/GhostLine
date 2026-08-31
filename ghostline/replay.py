@@ -18,7 +18,9 @@ from .extractor import Extractor, get_extractor
 from .models import Attestation, Record, Transcript
 from .pipeline import resolve_claim
 
-FIXTURES_DIR = REPO_ROOT / "replay" / "fixtures"
+_BUNDLED_FIXTURES = Path(__file__).parent / "data" / "fixtures"
+_DEV_FIXTURES = REPO_ROOT / "replay" / "fixtures"
+FIXTURES_DIR = _DEV_FIXTURES if _DEV_FIXTURES.is_dir() and any(_DEV_FIXTURES.glob("*.json")) else _BUNDLED_FIXTURES
 
 
 @dataclass

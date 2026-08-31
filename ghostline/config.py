@@ -16,7 +16,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=REPO_ROOT / ".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=REPO_ROOT / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        # A blank env var (e.g. one Vercel auto-creates from .env.example) falls back to the
+        # field default instead of failing to parse.
+        env_ignore_empty=True,
     )
 
     # --- CALL-E ---

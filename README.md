@@ -74,8 +74,10 @@ The reusable contribution (`skills/phone-claim-verifier/`) uses the CALL-E **MCP
 
 ## Extending to a new domain
 
-Write a claim pack (a YAML file in `examples/`). That's the whole change — the engine is
-domain-neutral. Healthcare is the flagship *evidence* case, not the product's identity.
+Write a claim pack — a YAML file. Bundled packs live in [`ghostline/data/packs/`](ghostline/data/packs/);
+drop your own into a `packs/` or `examples/` dir at the repo root and it's picked up. That's the
+whole change — the engine is domain-neutral. Healthcare is the flagship *evidence* case, not the
+product's identity.
 
 ```yaml
 pack_id: suppliers
