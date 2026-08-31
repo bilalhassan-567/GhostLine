@@ -18,6 +18,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
 
+from ..benchmark import load_results
 from ..claim_pack import list_packs, load_pack
 from ..config import get_settings
 from ..corrections import corrections_csv_str
@@ -25,6 +26,25 @@ from ..csv_io import record_from_fields
 from ..models import CallOutcome, Record, Verdict
 from ..replay import load_fixtures
 from . import runs
+
+_SCN_CLS = {
+    "MATCH": "match", "MISMATCH": "mismatch", "UNCLEAR": "unclear", "NO_CONTACT": "nocontact",
+}
+
+
+def _scenario_cards() -> list[dict]:
+    cards = []
+    for fx in load_fixtures():
+        v = fx.meta.get("expected_verdict", "")
+        cards.append(
+            {
+                "stem": fx.path.stem,
+                "verdict": v.replace("_", " "),
+                "cls": _SCN_CLS.get(v, ""),
+                "label": fx.meta.get("scenario", fx.path.stem).split(" — ")[-1],
+            }
+        )
+    return cards
 
 # On a serverless host (Vercel) there are no background workers, so the poll-based live
 # call flow is unavailable until the webhook-driven path ships. Replay Mode works everywhere.
@@ -46,6 +66,7 @@ _CHIP_CLASS = {
 }
 templates.env.globals["chip_class"] = lambda v: _CHIP_CLASS.get(v, "")
 templates.env.globals["CallOutcome"] = CallOutcome
+templates.env.globals["app_mode"] = lambda: get_settings().mode
 
 
 def _highlight(text: str, span: str | None) -> Markup:
@@ -58,6 +79,20 @@ def _highlight(text: str, span: str | None) -> Markup:
 
 
 templates.env.globals["highlight"] = _highlight
+
+
+def _public_url(request: Request) -> str:
+    return (
+        os.environ.get("GHOSTLINE_PUBLIC_URL")
+        or os.environ.get("GHOSTLINE_WEBHOOK_BASE")
+        or str(request.base_url).rstrip("/")
+    )
+
+
+def _qr_svg(url: str) -> Markup:
+    import segno
+
+    return Markup(segno.make(url, error="m").svg_inline(scale=4, dark="#4fd1a5", light=None))
 
 
 @app.get("/health")
@@ -76,20 +111,26 @@ def health() -> JSONResponse:
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    pack = load_pack("healthcare")
+    url = _public_url(request)
     return templates.TemplateResponse(
         request,
         "index.html",
         {
             "packs": list_packs(),
-            "pack": pack,
+            "pack": load_pack("healthcare"),
             "settings": get_settings(),
             "live_disabled": _LIVE_DISABLED,
-            "scenarios": [
-                (fx.path.stem, fx.meta.get("scenario", fx.path.stem)) for fx in load_fixtures()
-            ],
+            "scenario_cards": _scenario_cards(),
+            "benchmark": load_results(),
+            "public_url": url,
+            "qr_svg": _qr_svg(url),
         },
     )
+
+
+@app.get("/packs", response_class=HTMLResponse)
+def packs_page(request: Request):
+    return templates.TemplateResponse(request, "packs.html", {"packs": list_packs()})
 
 
 @app.post("/verify")
@@ -187,6 +228,52 @@ def corrections_download(run_id: str):
     if run is None:
         return Response("Run not found.", status_code=404)
     return _csv_response(run.all_attestations, f"corrections-{run_id}.csv")
+
+
+@app.post("/derive/{run_id}/{idx}")
+async def derive(request: Request, run_id: str, idx: int):
+    """Approve a derived call. The transcript never dialed anything - this click does."""
+    form = await request.form()
+    if _LIVE_DISABLED:
+        return templates.TemplateResponse(
+            request, "notice.html", {"message": _LIVE_DISABLED_MSG}, status_code=503
+        )
+    run = runs.start_derived_run(run_id, idx, (form.get("phone") or "").strip() or None)
+    if run is None:
+        return RedirectResponse(f"/run/{run_id}", status_code=303)
+    return RedirectResponse(f"/run/{run.id}", status_code=303)
+
+
+@app.post("/packs/generate", response_class=HTMLResponse)
+async def packs_generate(request: Request, prompt: str = Form(...)):
+    from ..pack_generator import draft_pack
+
+    pack = draft_pack(prompt)
+    return templates.TemplateResponse(
+        request, "pack_draft.html", {"pack": pack, "prompt": prompt}
+    )
+
+
+@app.post("/packs/generate/save")
+async def packs_generate_save(pack_json: str = Form(..., alias="json")):
+    """Approving a draft pack: on a writable host, save it; otherwise hand back the JSON."""
+    import json as _json
+
+    data = _json.loads(pack_json)
+    pack_id = data.get("pack_id", "custom")
+    dest_dir = Path(
+        os.environ.get("GHOSTLINE_PACKS_DIR")
+        or (Path(__file__).resolve().parents[1] / "data" / "packs")
+    )
+    try:
+        (dest_dir / f"{pack_id}.json").write_text(pack_json, encoding="utf-8")
+        return RedirectResponse("/packs", status_code=303)
+    except OSError:
+        return Response(
+            pack_json,
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="{pack_id}.json"'},
+        )
 
 
 def _csv_response(attestations, filename: str) -> Response:

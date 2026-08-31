@@ -38,18 +38,25 @@ def load_pack_file(path: Path) -> ClaimPack:
     return ClaimPack.model_validate(data)
 
 
+_PATTERNS = ("*.yaml", "*.yml", "*.json")
+
+
 def _pack_files() -> list[Path]:
     seen: dict[str, Path] = {}
     for d in PACK_DIRS:
-        for p in sorted(d.glob("*.y*ml")):
-            seen.setdefault(p.stem.removesuffix("-pack"), p)
+        for pat in _PATTERNS:
+            for p in sorted(d.glob(pat)):
+                seen.setdefault(p.stem.removesuffix("-pack"), p)
     return list(seen.values())
 
 
 def load_pack(name: str) -> ClaimPack:
-    stem = name.removesuffix(".yaml").removesuffix(".yml").removesuffix("-pack")
+    stem = name.removesuffix(".yaml").removesuffix(".yml").removesuffix(".json").removesuffix("-pack")
     for d in PACK_DIRS:
-        for cand in (d / f"{stem}.yaml", d / f"{stem}.yml", d / f"{stem}-pack.yaml", d / name):
+        for cand in (
+            d / f"{stem}.yaml", d / f"{stem}.yml", d / f"{stem}.json",
+            d / f"{stem}-pack.yaml", d / name,
+        ):
             if cand.is_file():
                 return load_pack_file(cand)
     have = ", ".join(sorted(p.stem for p in _pack_files())) or "(none)"

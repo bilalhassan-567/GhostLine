@@ -1,62 +1,107 @@
 {% extends "base.html" %}
-{% block title %}Run {{ run.id }} — Ghostline{% endblock %}
+{% block title %}Run {{ run.id }} &mdash; Ghostline{% endblock %}
 {% block body %}
 
-<div class="panel">
-  <h2>Run {{ run.id }} &mdash; {{ run.mode }} &mdash; <span id="runstatus">{{ run.status }}</span></h2>
-  {% if run.error %}<p class="chip mismatch">error</p><p class="muted">{{ run.error }}</p>{% endif %}
+<section class="hero">
+  <h1 style="font-size:24px">
+    {% if run.mode == "replay" %}Recorded scenario{% else %}Verification run{% endif %}
+    <span class="chip {{ 'match' if run.status=='done' else 'unclear' }}" style="vertical-align:middle;margin-left:8px">
+      {{ run.status }}</span>
+  </h1>
+  <p class="lede" style="font-size:14px">
+    {{ run.records | length }} record(s) &middot; pack <code>{{ run.pack_ref }}</code>
+    &middot; run <code>{{ run.id }}</code>
+    {% if run.mode == "replay" %} &middot; no calls placed{% endif %}
+  </p>
+</section>
 
-  {% for rr in run.records %}
-  <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:14px">
-    <strong>{{ rr.record.name or rr.record.record_id }}</strong>
-    <span class="muted">{{ rr.dial_e164 or rr.record.phone }} &mdash; {{ rr.status }}</span>
+{% if run.summary %}<div class="banner" style="border-color:var(--line);background:var(--panel);color:var(--ink-2)">{{ run.summary }}</div>{% endif %}
+{% if run.error %}<div class="banner" style="border-color:rgba(229,97,90,.35);background:rgba(229,97,90,.08);color:var(--mismatch)">{{ run.error }}</div>{% endif %}
 
-    {% for m in rr.messages %}{% if m %}<div class="muted">• {{ m }}</div>{% endif %}{% endfor %}
+{% for rr in run.records %}
+{% set span = rr.attestations[0].evidence_span if rr.attestations else None %}
+<div class="rec">
+  <header>
+    <span class="name">{{ rr.record.name or rr.record.record_id }}
+      {% if rr.trust %}<span class="tag" style="margin-left:6px">{{ rr.trust.label }}</span>{% endif %}
+    </span>
+    <span class="meta">{{ rr.dial_e164 or rr.record.phone }} &middot; {{ rr.status }}</span>
+  </header>
+  <div class="body">
+    {% for m in rr.messages %}{% if m %}<p class="muted" style="margin:8px 0 0">&bull; {{ m }}</p>{% endif %}{% endfor %}
 
     {% for a in rr.attestations %}
-    <div style="margin:12px 0">
-      <span class="chip {{ chip_class(a.verdict) }}">{{ a.verdict.value }}</span>
-      <span class="muted">{{ a.claim_id }}
-        {%- if a.asserted_value is not none %} &mdash; asserted {{ a.asserted_value }}{% endif %}</span>
+    <div class="claim">
+      <div class="top">
+        <span class="chip {{ chip_class(a.verdict) }}">{{ a.verdict.value }}</span>
+        <span class="cid">{{ a.claim_id }}</span>
+        {% if a.asserted_value is not none %}<span class="muted">was told: {{ a.asserted_value }}</span>{% endif %}
+      </div>
+
       {% if a.evidence_span %}
-        <div class="evidence">&ldquo;{{ a.evidence_span }}&rdquo;
-          <span class="muted">&mdash; {{ a.source_role.value }}, {{ a.confidence.value }} confidence</span></div>
+      <div class="evidence c-{{ a.confidence.value }}">
+        <span class="q">&ldquo;{{ a.evidence_span }}&rdquo;</span>
+        <div class="src">{{ a.source_role.value }} &middot; {{ a.confidence.value }} confidence</div>
+      </div>
       {% endif %}
-      <div class="muted">{{ a.evaluation_reason }}</div>
-      {% if a.diagnostic_tags %}<div class="muted">tags: {{ a.diagnostic_tags | map(attribute='value') | join(', ') }}</div>{% endif %}
-      {% if a.expires_at %}<div class="muted">attested {{ a.attested_at.strftime('%Y-%m-%d') }}
-        &mdash; valid until {{ a.expires_at.strftime('%Y-%m-%d') }}</div>{% endif %}
-      {% if a.calle_confidence_label %}
-        <div class="muted">CALL-E's own read: {{ a.calle_structured_result }} ({{ a.calle_confidence_label }})</div>
+
+      <div class="reason">{{ a.evaluation_reason }}</div>
+
+      {% if a.diagnostic_tags %}
+      <div class="tags">{% for t in a.diagnostic_tags %}<span class="tag">{{ t.value }}</span>{% endfor %}</div>
+      {% endif %}
+
+      {% if a.calle_confidence_label and a.verdict.value == 'UNCLEAR' and a.calle_structured_result %}
+      <div class="contrast">
+        CALL-E's own extractor read this as
+        <b>{{ a.calle_structured_result.get(a.claim_id, '?') }}</b> ({{ a.calle_confidence_label }} confidence).
+        Ghostline abstained &mdash; no verbatim quote named the subject of the claim.
+      </div>
+      {% endif %}
+
+      {% if a.expires_at %}
+      <p class="muted" style="margin-top:7px">attested {{ a.attested_at.strftime('%b %d') }}
+        &middot; valid until {{ a.expires_at.strftime('%b %d, %Y') }}</p>
       {% endif %}
     </div>
     {% endfor %}
 
     {% if rr.transcript and rr.transcript.turns %}
-    <details>
-      <summary class="muted">transcript</summary>
-      <div class="transcript">
-        {% set span = rr.attestations[0].evidence_span if rr.attestations else None %}
+    <details class="transcript">
+      <summary>transcript &middot; {{ rr.transcript.turns | length }} turns</summary>
+      <div class="turns">
         {% for t in rr.transcript.turns %}
-        <div class="{{ t.speaker.value }}">
-          <span class="muted">[{{ t.speaker.value }}]</span> {{ highlight(t.text, span) }}
+        <div class="turn {{ t.speaker.value }}">
+          {{ highlight(t.text, span) }}
+          {% if t.offset_seconds is not none %}<div class="t">{{ '%d:%02d' | format(t.offset_seconds // 60, t.offset_seconds % 60) }}</div>{% endif %}
         </div>
         {% endfor %}
       </div>
     </details>
     {% endif %}
-  </div>
-  {% endfor %}
 
-  <p style="margin-top:20px">
-    {% if run.mode == "replay" %}
-    <a class="btn" href="/replay-corrections.csv">Download corrections.csv</a>
-    {% else %}
-    <a class="btn" href="/run/{{ run.id }}/corrections.csv">Download corrections.csv</a>
+    {% if rr.derived %}
+    <div class="banner" style="border-color:rgba(122,162,255,.3);background:rgba(122,162,255,.07);color:var(--accent)">
+      <b>The answer wrote the next call.</b> {{ rr.derived.reason }}
+      <form method="post" action="/derive/{{ run.id }}/{{ loop.index0 }}" style="margin-top:10px">
+        <input type="hidden" name="phone" value="{{ rr.derived.phone }}">
+        <button class="btn sm" type="submit">Approve call to {{ rr.derived.phone }} &rarr;</button>
+      </form>
+    </div>
     {% endif %}
-    <a class="btn ghost" href="/">New verification</a>
-  </p>
+  </div>
 </div>
+{% endfor %}
+
+<div class="divider"></div>
+<p>
+  {% if run.mode == "replay" %}
+  <a class="btn" href="/replay-corrections.csv">Download corrections.csv</a>
+  {% else %}
+  <a class="btn" href="/run/{{ run.id }}/corrections.csv">Download corrections.csv</a>
+  {% endif %}
+  <a class="btn ghost" href="/">New verification</a>
+</p>
 
 {% endblock %}
 {% block script %}
@@ -64,11 +109,8 @@
 <script>
 (async function poll(){
   try{
-    const r = await fetch("/api/run/{{ run.id }}");
-    const d = await r.json();
-    document.getElementById("runstatus").textContent = d.status;
-    if(d.status === "running"){ setTimeout(poll, 2500); }
-    else { location.reload(); }
+    const r = await fetch("/api/run/{{ run.id }}"); const d = await r.json();
+    if(d.status === "running"){ setTimeout(poll, 2500); } else { location.reload(); }
   }catch(e){ setTimeout(poll, 4000); }
 })();
 </script>

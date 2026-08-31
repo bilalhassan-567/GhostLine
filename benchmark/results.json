@@ -1,0 +1,19 @@
+{
+  "mode": "replay",
+  "n_calls": 9,
+  "human_agreement_rate": 1.0,
+  "engaged_agreement_rate": 1.0,
+  "abstention_rate": 0.3333,
+  "no_contact_rate": 0.4444,
+  "failure_taxonomy": {
+    "AMBIGUOUS": 2,
+    "CALL_FAILED": 1,
+    "CONFLICTING": 1,
+    "VOICEMAIL": 1,
+    "IVR": 1,
+    "NO_ANSWER": 1
+  },
+  "misclassified": [],
+  "generated_at": "2026-08-31T01:36:32.734265+00:00",
+  "note": "Fixture-derived: the pipeline run against 9 recorded, human-labelled call transcripts. Not live calls. Replace with `--source live` once real calls exist."
+}

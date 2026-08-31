@@ -12,7 +12,8 @@
     },
     "expected_verdict": "MISMATCH",
     "expected_tags": [],
-    "note": "Asserted TRUE, responder explicitly denies -> this row belongs in corrections.csv."
+    "expected_derived": "contact",
+    "note": "Asserted TRUE, responder explicitly denies -> corrections.csv. The answer also names a new contact -> a derived-call proposal (human-approved)."
   },
   "id": "call_fixture02",
   "object": "call_task",
@@ -34,7 +35,9 @@
           "transcript_turns": [
             { "offset_seconds": 0, "speaker": "bot", "text": "Automated verification call for Northline Health. Does this office currently accept the Northline Health plan?" },
             { "offset_seconds": 7, "speaker": "user", "text": "No, we stopped accepting that plan last month. We don't take Northline Health anymore." },
-            { "offset_seconds": 13, "speaker": "bot", "text": "Understood, thank you." }
+            { "offset_seconds": 13, "speaker": "bot", "text": "Understood. Is there anything else I should note?" },
+            { "offset_seconds": 17, "speaker": "user", "text": "For plan questions you'd want to talk to Sarah in our billing office now." },
+            { "offset_seconds": 22, "speaker": "bot", "text": "Thank you." }
           ]
         }
       ]

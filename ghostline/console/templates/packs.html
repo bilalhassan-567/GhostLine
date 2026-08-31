@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Claim packs &mdash; Ghostline{% endblock %}
+{% block body %}
+
+<section class="hero">
+  <h1 style="font-size:24px">Claim packs</h1>
+  <p class="lede" style="font-size:14px">A new domain is a new pack &mdash; a small config file,
+    never a code change. Each claim is one testable fact, phrased as a question, with strict
+    guidance on what counts as a yes.</p>
+</section>
+
+{% for p in packs %}
+<div class="panel">
+  <h2>{{ p.display_name }}</h2>
+  <p class="sub"><code>{{ p.ref }}</code> &middot; attestations valid {{ p.expires_after_days }} days
+    &middot; {{ p.claims | length }} claims</p>
+  {% if p.description %}<p class="muted" style="margin-bottom:14px">{{ p.description }}</p>{% endif %}
+  {% for c in p.claims %}
+  <div class="claim">
+    <div class="top"><span class="cid">{{ c.claim_id }}</span></div>
+    <div class="reason" style="color:var(--ink);margin-top:4px">{{ c.question }}</div>
+    {% if c.answer_guidance %}<div class="reason">{{ c.answer_guidance }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+
+<div class="panel">
+  <h2>Generate one from a sentence</h2>
+  <p class="sub">Describe what you want checked. An LLM drafts the claims; you approve them
+    before anything is saved or dialed.</p>
+  <form method="post" action="/packs/generate">
+    <textarea name="prompt" placeholder="verify these restaurants are still open at the address on file, and still take reservations"></textarea>
+    <p style="margin-top:12px"><button class="btn" type="submit">Draft a pack &rarr;</button></p>
+  </form>
+</div>
+
+{% endblock %}

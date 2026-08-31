@@ -1,8 +1,40 @@
 {% extends "base.html" %}
 {% block body %}
 
+<section class="hero">
+  <h1>Your database is quietly rotting. Ghostline calls to check.</h1>
+  <p class="lede">Give it a table of records and the claims attached to them &mdash; "still accepts
+    this plan", "still the right contact", "still open". It phones each number via CALL-E, asks,
+    and returns a verdict for every claim <b>with the exact words the person used</b> as evidence.
+    It never guesses one it can't quote.</p>
+  <div class="lifecycle">
+    <span class="on">asserted</span><i>&rarr;</i><span class="on">verified</span><i>&rarr;</i>
+    <span>evidenced</span><i>&rarr;</i><span>corrected</span><i>&rarr;</i>
+    <span>expired</span><i>&rarr;</i><span>re-verified</span>
+  </div>
+</section>
+
+<div class="panel" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+  <div style="width:104px;height:104px;flex:none;background:#0b0d12;border:1px solid var(--line);border-radius:10px;padding:6px">{{ qr_svg }}</div>
+  <div style="flex:1;min-width:220px">
+    <h2 style="margin-bottom:8px">Try it on your own phone</h2>
+    <p class="muted" style="margin:0">Scan the code, or open <a href="{{ public_url }}">{{ public_url }}</a>.
+      In Live mode you type your own number into the same form everyone uses and Ghostline calls you.</p>
+  </div>
+</div>
+
+{% if benchmark %}
+<div class="stats" style="margin-top:22px">
+  <div><div class="n brand">{{ benchmark.n_calls }}</div><div class="k">calls measured</div></div>
+  <div><div class="n">{{ (benchmark.human_agreement_rate * 100) | round | int }}%</div><div class="k">human agreement</div></div>
+  <div><div class="n">{{ (benchmark.abstention_rate * 100) | round | int }}%</div><div class="k">abstained (UNCLEAR)</div></div>
+  <div><div class="n">{{ benchmark.get('mode', 'replay') }}</div><div class="k">source</div></div>
+</div>
+{% endif %}
+
 <div class="panel">
   <h2>Verify a record</h2>
+  <p class="sub">One form for everyone. In Live mode Ghostline calls the number you type.</p>
   <form method="post" action="/verify" enctype="multipart/form-data">
     <div class="row">
       <div>
@@ -14,22 +46,20 @@
       <div>
         <label>Mode</label>
         <select name="mode">
-          <option value="replay">Replay &mdash; explore recorded scenarios, no calls</option>
+          <option value="replay">Replay &mdash; explore recorded calls, no dialing</option>
           <option value="live"{% if not settings.has_calle or live_disabled %} disabled{% endif %}>
             Live &mdash; place a real CALL-E call
-            {%- if live_disabled %} (not available on this hosted instance)
+            {%- if live_disabled %} (not on this hosted instance yet)
             {%- elif not settings.has_calle %} (CALLE_API_KEY not set){% endif %}
           </option>
         </select>
       </div>
     </div>
 
-    <p class="muted" style="margin-top:16px">Type one record &mdash; the same form everyone uses.
-      In Live mode Ghostline calls the number you enter.</p>
-    <div class="row">
+    <div class="row" style="margin-top:6px">
       <div><label>Name</label><input name="name" placeholder="Northline Family Clinic"></div>
-      <div><label>Phone (E.164)</label><input name="phone" placeholder="+1202555xxxx"></div>
-      <div style="max-width:110px"><label>Region</label><input name="region" value="US"></div>
+      <div><label>Phone &middot; E.164</label><input name="phone" placeholder="+1 202 555 0142"></div>
+      <div style="max-width:120px"><label>Region</label><input name="region" value="US"></div>
     </div>
     <div class="row">
       {% for c in pack.claims %}
@@ -44,20 +74,26 @@
       {% endfor %}
     </div>
 
-    <p class="muted" style="margin-top:16px">&hellip; or upload a CSV
-      (<code>record_id,name,phone,region,&lt;claim&gt;&hellip;</code>)</p>
+    <label style="margin-top:16px">&hellip; or upload a CSV</label>
+    <p class="muted" style="margin:0 0 6px">Columns: <code>record_id,name,phone,region</code> + one per claim (<code>true</code>/<code>false</code>)</p>
     <input type="file" name="csv_file" accept=".csv">
 
-    <p style="margin-top:18px"><button type="submit">Verify</button></p>
+    <p style="margin-top:18px"><button class="btn" type="submit">Verify &rarr;</button></p>
   </form>
 </div>
 
 <div class="panel">
-  <h2>Replay scenarios</h2>
-  <p class="muted">The full pipeline over 9 recorded calls &mdash; every verdict state, zero live calls.</p>
-  <div class="scenarios">
-    {% for stem, label in scenarios %}<a class="btn ghost" href="/replay/{{ stem }}">{{ label }}</a>{% endfor %}
+  <h2>Recorded scenarios</h2>
+  <p class="sub">The full pipeline over 9 real-shaped calls &mdash; every verdict state, zero dialing.</p>
+  <div class="grid">
+    {% for s in scenario_cards %}
+    <a class="scn" href="/replay/{{ s.stem }}">
+      <span class="chip {{ s.cls }}">{{ s.verdict }}</span>
+      <div class="d">{{ s.label }}</div>
+    </a>
+    {% endfor %}
   </div>
+  <p style="margin-top:16px"><a class="btn ghost sm" href="/replay">Run all 9 &rarr;</a></p>
 </div>
 
 {% endblock %}

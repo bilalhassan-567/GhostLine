@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block body %}
 <div class="panel">
-  <h2>Heads up</h2>
-  <p>{{ message }}</p>
-  <p style="margin-top:16px"><a class="btn" href="/replay">Explore Replay Mode</a>
-    <a class="btn ghost" href="/">Back</a></p>
+  <h2>{{ title or "Heads up" }}</h2>
+  <p style="color:var(--ink-2)">{{ message }}</p>
+  <p style="margin-top:16px">
+    <a class="btn" href="/replay">Explore recorded scenarios</a>
+    <a class="btn ghost" href="/">Back</a>
+  </p>
 </div>
 {% endblock %}

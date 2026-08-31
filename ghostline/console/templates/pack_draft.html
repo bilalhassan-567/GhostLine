@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Draft pack &mdash; Ghostline{% endblock %}
+{% block body %}
+
+<section class="hero">
+  <h1 style="font-size:24px">Draft claim pack</h1>
+  <p class="lede" style="font-size:14px">From: &ldquo;{{ prompt }}&rdquo;</p>
+</section>
+
+<div class="banner">
+  This is a <b>proposal</b>. Nothing is saved and no number is dialed until you approve the
+  questions below &mdash; the same rule as derived calls.
+</div>
+
+<div class="panel">
+  <h2>{{ pack.display_name }}</h2>
+  <p class="sub"><code>{{ pack.ref }}</code> &middot; suggested recheck every
+    {{ pack.expires_after_days }} days</p>
+  {% for c in pack.claims %}
+  <div class="claim">
+    <div class="top"><span class="cid">{{ c.claim_id }}</span></div>
+    <div class="reason" style="color:var(--ink);margin-top:4px">{{ c.question }}</div>
+    <div class="reason">{{ c.answer_guidance }}</div>
+    {% if c.subject_terms %}<div class="tags">{% for t in c.subject_terms %}<span class="tag">{{ t }}</span>{% endfor %}</div>{% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="divider"></div>
+  <p class="muted">Approving saves this as a normal claim-pack file the engine treats like any
+    other. (On this hosted instance the file system is read-only, so approval offers the JSON
+    for download instead.)</p>
+  <form method="post" action="/packs/generate/save" style="margin-top:12px">
+    <input type="hidden" name="json" value="{{ pack.model_dump_json() | e }}">
+    <button class="btn" type="submit">Approve &amp; download JSON</button>
+    <a class="btn ghost" href="/packs">Discard</a>
+  </form>
+</div>
+
+{% endblock %}
