@@ -90,6 +90,22 @@ def test_webhook_resolution_and_kv_roundtrip():
     assert rr.attestations[0].verdict.value == "MATCH"
 
 
+def test_webhook_rejected_when_not_configured():
+    from fastapi.testclient import TestClient
+
+    from ghostline.console.app import app
+
+    r = TestClient(app).post("/calle/webhook", json={"data": {}})
+    assert r.status_code == 404  # webhook_base not set -> unsolicited posts rejected
+
+
+def test_kv_key_is_sanitised():
+    from ghostline.console import store_kv
+
+    assert store_kv._key("../../etc/passwd") == "gl:run:etcpasswd"
+    assert store_kv._key("abc-123_XYZ") == "gl:run:abc-123_XYZ"
+
+
 def test_reverification_diff_fires_when_verdict_changes():
     from ghostline.console import runs
     from ghostline.models import Attestation, Verdict

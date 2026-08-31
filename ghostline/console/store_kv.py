@@ -10,9 +10,12 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 
 import httpx
+
+_KEY_RE = re.compile(r"[^a-zA-Z0-9_-]")
 
 from ..derived import DerivedProposal
 from ..models import Attestation, Record, Transcript
@@ -101,12 +104,16 @@ def from_dict(d: dict) -> Run:
     return run
 
 
+def _key(run_id: str) -> str:
+    return "gl:run:" + _KEY_RE.sub("", run_id)[:64]
+
+
 def save(run: Run) -> None:
-    _set(f"gl:run:{run.id}", json.dumps(to_dict(run)))
+    _set(_key(run.id), json.dumps(to_dict(run)))
 
 
 def load(run_id: str) -> Run | None:
-    raw = _get(f"gl:run:{run_id}")
+    raw = _get(_key(run_id))
     if not raw:
         return None
     try:

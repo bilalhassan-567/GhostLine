@@ -192,8 +192,11 @@ def run_page(request: Request, run_id: str):
 @app.post("/calle/webhook")
 async def calle_webhook(request: Request):
     """CALL-E posts a terminal call task here (webhook-driven live path)."""
-    raw = await request.body()
     s = get_settings()
+    if not s.webhook_base:
+        # Webhook path isn't configured for this instance - reject unsolicited posts.
+        return JSONResponse({"ok": False}, status_code=404)
+    raw = await request.body()
     payload: dict
     if s.calle_webhook_secret:
         try:
@@ -212,8 +215,11 @@ async def calle_webhook(request: Request):
     call = payload.get("data", payload)
     meta = call.get("metadata", {}) or {}
     run_id, idx = meta.get("gl_run"), meta.get("gl_idx")
-    if run_id is not None and idx is not None:
-        runs.resolve_from_webhook(str(run_id), int(idx), call)
+    try:
+        if run_id is not None and idx is not None:
+            runs.resolve_from_webhook(str(run_id), int(idx), call)
+    except (ValueError, TypeError):
+        return JSONResponse({"ok": False, "error": "bad metadata"}, status_code=400)
     return JSONResponse({"ok": True})
 
 
