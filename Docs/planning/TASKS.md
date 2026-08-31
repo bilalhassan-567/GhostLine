@@ -68,8 +68,9 @@ Repo scaffolding (blocked on entrant's git go-ahead — currently on hold):
 ## Day 7 — console frontend + PR + deploy (Sep 6) — **frontend done early**
 
 - [x] **P0** One-screen UI (`base+index+run.html`): record / transcript / verdict / evidence span highlighted in the transcript / corrections download. Poll-refresh while a live run is in flight.
-- [ ] **P0** Open **draft PR** to `CALLE-AI/awesome-phone-call-agents` — needs git go-ahead + the Skill package built.
-- [ ] **P0** Deploy hosted (staging URL live) — needs hosting decision (O-003).
+- [x] **P0** **Agent Skill built** — `skills/phone-claim-verifier/` (SKILL.md + 5 references + `plan.py`/`verdict.py`/`_pcv.py` stdlib scripts + runnable example). 11 skill tests (**50 total**). Passes the `awesome-phone-call-agents` skill-validation rules (simulated locally). MCP path (`plan_call`→`run_call`→`get_call_run`).
+- [~] **P0** Deploy hosted — **Vercel, Replay Mode LIVE** at https://ghostline-one.vercel.app (D-017). Phase 2 (webhook + Upstash → live "call yourself") pending.
+- [ ] **P0** Open **draft PR** to `CALLE-AI/awesome-phone-call-agents` — Skill is ready; needs: fork the repo, add `skills/phone-claim-verifier/` + a README resource-list line, `python3 scripts/validate_repository.py`, branch `feat/phone-claim-verifier`, push, open PR. Walk the entrant through it.
 
 ## Day 8 — global live-call safety + auto-packs (Sep 7)
 
