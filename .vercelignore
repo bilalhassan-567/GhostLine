@@ -1,0 +1,12 @@
+# Keep the deployed function bundle small and fast to cold-start.
+tests/
+Docs/
+deploy/
+scripts/
+.venv/
+venv/
+*.db
+*.sqlite3
+.pytest_cache/
+.ruff_cache/
+__pycache__/
