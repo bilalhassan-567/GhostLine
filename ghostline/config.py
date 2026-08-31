@@ -34,6 +34,8 @@ class Settings(BaseSettings):
 
     # --- safety / budget ---
     mode: str = Field(default="replay", alias="GHOSTLINE_MODE")  # "replay" | "live"
+    webhook_base: str = Field(default="", alias="GHOSTLINE_WEBHOOK_BASE")  # public https base
+    calle_webhook_secret: str = Field(default="", alias="CALLE_WEBHOOK_SECRET")
     credit_floor: int = Field(default=10, alias="GHOSTLINE_CREDIT_FLOOR")
     test_numbers_raw: str = Field(default="", alias="GHOSTLINE_TEST_NUMBERS")
     session_live_call_cap: int = Field(default=3, alias="GHOSTLINE_SESSION_LIVE_CALL_CAP")

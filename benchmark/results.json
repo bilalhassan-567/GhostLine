@@ -14,6 +14,6 @@
     "NO_ANSWER": 1
   },
   "misclassified": [],
-  "generated_at": "2026-08-31T01:36:32.734265+00:00",
+  "generated_at": "2026-08-31T01:45:27.554250+00:00",
   "note": "Fixture-derived: the pipeline run against 9 recorded, human-labelled call transcripts. Not live calls. Replace with `--source live` once real calls exist."
 }

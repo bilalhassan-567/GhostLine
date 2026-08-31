@@ -46,13 +46,13 @@ def _scenario_cards() -> list[dict]:
         )
     return cards
 
-# On a serverless host (Vercel) there are no background workers, so the poll-based live
-# call flow is unavailable until the webhook-driven path ships. Replay Mode works everywhere.
+# On serverless (Vercel) there are no background workers. Live calling then needs the
+# webhook path — enabled once GHOSTLINE_WEBHOOK_BASE (public https base) is set.
 _LIVE_DISABLED = bool(os.environ.get("VERCEL")) and not os.environ.get("GHOSTLINE_WEBHOOK_BASE")
 _LIVE_DISABLED_MSG = (
-    "Live calling isn't available on this hosted instance yet (it needs a webhook receiver). "
-    "Explore every verdict state in Replay Mode, or run the console locally "
-    "(uvicorn ghostline.console.app:app) or the CLI (ghostline verify ... --live)."
+    "Live calling isn't switched on for this hosted instance yet. Explore every verdict state "
+    "in Replay Mode, or run it locally: `uvicorn ghostline.console.app:app` / "
+    "`ghostline verify ... --live`."
 )
 
 app = FastAPI(title="Ghostline")
@@ -183,6 +183,34 @@ def run_page(request: Request, run_id: str):
     if run is None:
         return HTMLResponse("Run not found.", status_code=404)
     return templates.TemplateResponse(request, "run.html", {"run": run})
+
+
+@app.post("/calle/webhook")
+async def calle_webhook(request: Request):
+    """CALL-E posts a terminal call task here (webhook-driven live path)."""
+    raw = await request.body()
+    s = get_settings()
+    payload: dict
+    if s.calle_webhook_secret:
+        try:
+            from calle import CalleClient
+
+            payload = CalleClient(api_key=s.calle_api_key).webhooks.unwrap(
+                raw_body=raw, headers=dict(request.headers), secret=s.calle_webhook_secret
+            )
+        except Exception:  # noqa: BLE001
+            return JSONResponse({"ok": False, "error": "signature"}, status_code=400)
+    else:
+        import json as _json
+
+        payload = _json.loads(raw or b"{}")
+
+    call = payload.get("data", payload)
+    meta = call.get("metadata", {}) or {}
+    run_id, idx = meta.get("gl_run"), meta.get("gl_idx")
+    if run_id is not None and idx is not None:
+        runs.resolve_from_webhook(str(run_id), int(idx), call)
+    return JSONResponse({"ok": True})
 
 
 @app.get("/api/run/{run_id}")

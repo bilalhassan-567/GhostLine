@@ -41,6 +41,19 @@ class CallEngine:
             )
         return self._client
 
+    def dispatch(self, plan: CallPlan, *, webhook_url: str, metadata: dict) -> str:
+        """Place a call and return immediately; CALL-E posts the terminal result to
+        `webhook_url`. Used on serverless where we cannot poll on a background thread."""
+        created = self.client.calls.create(
+            task=plan.task,
+            recipients=[{"phones": [plan.dial_e164], "region": plan.region, "locale": plan.locale}],
+            result_schema=plan.result_schema,
+            metadata={"record_id": plan.record_id, "ghostline": "1", **metadata},
+            webhook_url=webhook_url,
+            idempotency_key=plan.idempotency_key,
+        )
+        return str(created.get("id", ""))
+
     def place(self, plan: CallPlan) -> Transcript:
         """Place one call for an authorized plan and return a normalized Transcript."""
         from calle.errors import CalleAPIError, CalleConnectionError, CalleTimeoutError

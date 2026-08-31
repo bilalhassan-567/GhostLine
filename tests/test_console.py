@@ -75,6 +75,6 @@ def test_live_disabled_on_serverless(monkeypatch):
     r = c.post("/verify", data={"mode": "live", "pack": "healthcare", "name": "X",
                                 "phone": "+12025550142"})
     assert r.status_code == 503
-    assert "not available" in r.text.lower() or "webhook" in r.text.lower()
+    assert "replay mode" in r.text.lower()
     monkeypatch.delenv("VERCEL")
     importlib.reload(app_module)

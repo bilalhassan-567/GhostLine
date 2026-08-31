@@ -60,7 +60,12 @@ _LOCK = threading.Lock()
 
 
 def get_run(run_id: str) -> Run | None:
-    return _RUNS.get(run_id)
+    run = _RUNS.get(run_id)
+    if run is not None:
+        return run
+    from . import store_kv  # lazy: avoids an import cycle
+
+    return store_kv.load(run_id)
 
 
 def _put(run: Run) -> None:
@@ -69,6 +74,12 @@ def _put(run: Run) -> None:
         if len(_RUNS) > 200:
             for k in list(_RUNS)[:50]:
                 _RUNS.pop(k, None)
+    try:
+        from . import store_kv
+
+        store_kv.save(run)
+    except Exception as exc:  # noqa: BLE001 - KV is a convenience, the dict is the primary
+        print(f"[ghostline] kv save skipped: {exc!s}")
 
 
 # --------------------------------------------------------------------------------------
@@ -113,9 +124,78 @@ def start_live_run(records: list[Record], pack_id: str, credits_remaining: int |
             f"{len(group)} records share a phone number ({', '.join(group)}) - one call may resolve all."
         )
     _put(run)
-    t = threading.Thread(target=_live_worker, args=(run.id, pack_id, credits_remaining), daemon=True)
-    t.start()
+
+    base = get_settings().webhook_base
+    if base:
+        # Serverless: CALL-E calls us back at /calle/webhook when each call finishes.
+        threading.Thread(
+            target=_webhook_dispatch, args=(run.id, pack_id, base, credits_remaining), daemon=True
+        ).start()
+    else:
+        threading.Thread(
+            target=_live_worker, args=(run.id, pack_id, credits_remaining), daemon=True
+        ).start()
     return run
+
+
+def _webhook_dispatch(run_id: str, pack_id: str, base: str, credits_remaining: int | None) -> None:
+    """Place every call with a webhook_url and return. Terminal results arrive at
+    app `/calle/webhook` -> resolve_from_webhook()."""
+    from ..call_engine import CallEngine
+
+    run = _RUNS[run_id]
+    settings = get_settings()
+    pack = load_pack(pack_id)
+    gate = PolicyGate(settings)
+    engine = CallEngine(settings)
+    hook = base.rstrip("/") + "/calle/webhook"
+    made = 0
+    for i, rr in enumerate(run.records):
+        res = gate.authorize(
+            rr.record, pack, credits_remaining=credits_remaining,
+            calls_this_session=made, dry_run=False,
+        )
+        rr.dial_e164 = res.plan.dial_e164 if res.plan else None
+        rr.messages += list(res.messages)
+        if res.decision == GateDecision.BLOCK:
+            rr.status = "blocked"
+            continue
+        try:
+            engine.dispatch(res.plan, webhook_url=hook, metadata={"gl_run": run_id, "gl_idx": str(i)})
+            rr.status = "dialing"
+            made += 1
+        except Exception as exc:  # noqa: BLE001
+            rr.status = "error"
+            rr.messages.append(str(exc))
+    if not any(rr.status == "dialing" for rr in run.records):
+        run.status = "done"
+        _finalise(run)
+    else:
+        _put(run)
+
+
+def resolve_from_webhook(run_id: str, record_index: int, calltask: dict) -> None:
+    from ..calle_normalize import transcript_from_calltask
+
+    run = get_run(run_id)
+    if run is None or record_index >= len(run.records):
+        return
+    rr = run.records[record_index]
+    pack = load_pack(run.pack_ref if run.pack_ref not in ("(fixtures)", "") else "healthcare")
+    transcript = transcript_from_calltask(calltask)
+    rr.transcript = transcript
+    if transcript.outcome == CallOutcome.ERROR:
+        rr.status = "error"
+        rr.messages.append(transcript.failure_message or transcript.failure_code or "error")
+    else:
+        rr.attestations = resolve_record(rr.record, pack, transcript, get_extractor())
+        rr.derived = detect(transcript)
+        rr.status = "done"
+    if all(r.status in ("done", "error", "blocked") for r in run.records):
+        run.status = "done"
+        _finalise(run)
+    else:
+        _put(run)
 
 
 def start_derived_run(parent_run_id: str, record_index: int, approved_phone: str | None) -> Run | None:
