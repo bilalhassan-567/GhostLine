@@ -103,10 +103,16 @@ def order_by_local_time(records: list[Record]) -> list[Record]:
 
 # --------------------------------------------------------------------------------------
 def start_replay_run(scenario: str | None = None) -> Run:
+    from ..extractor import HeuristicExtractor
     from ..pipeline import resolve_claim
 
     run = Run(id=uuid.uuid4().hex[:12], mode="replay", pack_ref="(fixtures)")
-    extractor = get_extractor()
+    # Replay is the deterministic pipeline-correctness check (same as CI): the recorded
+    # transcripts are authored to be unambiguous, so the heuristic extractor resolves every
+    # one correctly and instantly. The LLM extractor is reserved for the live path, where
+    # real, messy transcripts actually need it — and it keeps the hosted demo off the
+    # serverless time limit and independent of Gemini's free-tier rate caps.
+    extractor = HeuristicExtractor()
     fixtures = {fx.path.stem: fx for fx in load_fixtures()}
     chosen = [fixtures[scenario]] if scenario in fixtures else list(fixtures.values())
 

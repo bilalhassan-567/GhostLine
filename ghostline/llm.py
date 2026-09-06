@@ -61,9 +61,9 @@ def _gemini(system: str, prompt: str, s: Settings, max_tokens: int) -> str:
     # Gemini free tier throws transient 429/503 under load; a couple of short retries clears
     # most of them before the caller's deterministic fallback has to step in.
     for attempt in range(3):
-        r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=60)
+        r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=45)
         if r.status_code in (429, 500, 503) and attempt < 2:
-            time.sleep(1.5 * (attempt + 1))
+            time.sleep(0.6 * (attempt + 1))
             continue
         break
     r.raise_for_status()
