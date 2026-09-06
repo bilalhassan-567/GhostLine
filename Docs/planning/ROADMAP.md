@@ -1,13 +1,42 @@
-# GHOSTLINE — Compressed Roadmap (full master-doc scope)
+# GHOSTLINE — Roadmap
 
-**Re-anchored:** start = 2026-08-31 · submit target = **Sep 12** · hard deadline = **Sep 14, 8:45 PM GMT+5**
-Supersedes the day-by-day plan in master doc §8 (which assumed an Aug 18 start / 27 days). **Scope
-is unchanged from the master doc — everything ships. Nothing is minimised.** This roadmap just
-compresses the same scope into the days actually remaining.
+**Deadline:** Sep 14, 8:45 PM GMT+5 · **submit target:** Sep 12
 
-**Sequencing principle (unchanged):** retire the biggest risk first. Biggest risk = "will a
-Singapore judge's phone actually ring in October." Test it Day 1. Build the CLI spine first so
-the risky integration is proven before time is spent widening it.
+---
+
+## STATUS as of 2026-09-06
+
+**The build is essentially done, ahead of the schedule below.** Days 2–12 of the table (engine,
+verdict, policy gate, call engine, CLI, console, Skill, deploy) were completed 2026-08-31 in one
+sprint; derived calls, the pack generator, the Phase-2 webhook path, the benchmark harness, and
+the cherries followed; the UI was rebuilt 2026-09-06. 62 tests, CI, ruff clean. Deployed to
+Vercel (Replay Mode).
+
+**Not done — every remaining item is entrant-blocked** (see [CURRENT_STATE.md](CURRENT_STATE.md)
+and [../submission/FINAL_GAP_ANALYSIS.md](../submission/FINAL_GAP_ANALYSIS.md)):
+
+| Remaining | Effort |
+|---|---|
+| Set Vercel env vars → redeploy → **Live mode on** | ~20 min |
+| Test calls: own line + international; capture failure codes | ~30 min |
+| `run_benchmark.py --source live` for a real reliability number | ~30 min + calls |
+| Record the demo video (script in [../demo/DEMO_SCRIPT.md](../demo/DEMO_SCRIPT.md)) | ~1–2 hrs |
+| Open the PR ([../submission/CALL_E_PR_CHECKLIST.md](../submission/CALL_E_PR_CHECKLIST.md)) | ~20 min |
+| Devpost form + submit ([../submission/DEVPOST_DRAFT.md](../submission/DEVPOST_DRAFT.md)) | ~30 min |
+| Enable CI + keep-warm Actions; CALL-E Feedback Survey (by Sep 18) | ~10 min |
+
+The Day-1 kill-gate ("will a Singapore judge's phone ring") was **never tested** — the entrant
+has not placed a live call. `unsupported_region` gives a clean signal if routing fails.
+
+---
+
+## Original day-by-day plan (historical — Days 2–12 done early)
+
+**Re-anchored:** start = 2026-08-31 · submit target = Sep 12. Superseded master doc §8 (Aug-18
+start / 27 days). Scope unchanged — everything shipped.
+
+**Sequencing principle:** retire the biggest risk first. Build the CLI spine first so the risky
+integration is proven before time is spent widening it.
 
 | Day | Date | Work | Kill-gate — must be true to proceed |
 |---|---|---|---|

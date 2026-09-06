@@ -1,57 +1,56 @@
-# Ghostline — Current State Assessment
+# Ghostline — Current State
 
-**Date of assessment:** 2026-08-31
-**Assessed by:** Lead engineer
-**Source of truth:** [`Docs/masterdocs/GHOSTLINE_MASTER_DOC.md`](../masterdocs/GHOSTLINE_MASTER_DOC.md)
+**Last updated:** 2026-09-06 · **Deadline:** Sep 14, 8:45 PM GMT+5 (submit target Sep 12)
+
+The Aug-31 version of this file described a greenfield repo. That's long gone. This is the
+state after the build sprint (Aug 31) and the UI rebuild (Sep 6).
 
 ---
 
-## 1. What exists
+## Built and working
 
-| Item | Status | Notes |
-|---|---|---|
-| Master project document | ✅ Complete, high quality | v1.0, 724 lines. Vision, idea, kill-list, architecture, safety, build plan, risk register, demo shot-list, submission checklist all present. Treat as locked spec. |
-| Repository | ❌ Not a git repo | `git init` not run. No remote. |
-| Python environment | ⚠️ Present but bare | `.venv` with **Python 3.14.5** and only `pip`. No project deps. 3.14 is very new — watch for missing wheels on some libs. |
-| PyCharm project scaffolding | ✅ `.idea/` only | No source code, no `pyproject.toml`, no `requirements.txt`. |
-| Source code | ❌ None | `core/`, `console/`, `replay/`, `skills/`, `benchmark/` — none exist. |
-| Docs structure | ⚠️ Partial | Only `Docs/masterdocs/`. Planning/research/validation/testing/demo/submission folders being created now. |
-| CALL-E integration | ❌ Unknown / not started | Account status, API key, free-call balance, `+200` request — all unconfirmed. **Day-1 blocker.** |
-| Tests | ❌ None | |
-| Deployment | ❌ None | No hosting target chosen. |
-| Demo assets | ❌ None | |
-| CALL-E PR | ❌ None | |
+| Area | State |
+|---|---|
+| **Engine** (`ghostline/`) | claim packs (yaml+json), policy gate (dial allowlist + plan/authorize split), call engine (poll + webhook `dispatch`), transcript normalizer, heuristic + LLM extractors, verdict evaluator (evidence-span-or-abstain + `VerdictError` guard), corrections export, SQLite attestation ledger (+ trust score, prior-attestation lookup) |
+| **Derived calls** | `ghostline/derived.py` — detects a new contact / a move / another number → proposal card → one-click human approval → re-enters the policy gate. Transcript numbers never auto-dial. |
+| **Pack generator** | `ghostline/pack_generator.py` — plain-English sentence → draft pack (LLM or deterministic template) → human-approve page → save. Auto recheck-interval from keywords. |
+| **Benchmark** | `ghostline/benchmark.py` + `scripts/run_benchmark.py` → `benchmark/results.json`. Fixture mode (honest "pipeline check" label) + `--source live`. Landing page reads it. |
+| **Web console** (`ghostline/console/`) | FastAPI. One screen: manual entry + CSV upload, replay-scenario explorer, `/packs` browser + generator, derived-call approval, `/calle/webhook` receiver, `store_kv` (Upstash-or-memory run store), `/health`. **UI rebuilt Sep 6** — editorial/instrument design, verdict readouts, pulled evidence quotes, document-style transcript, QR "try it" card, healthcare-forward landing. |
+| **CLI** | `ghostline packs \| replay \| verify [--live]` |
+| **Agent Skill** (`skills/phone-claim-verifier/`) | Standalone stdlib scripts (`plan.py`, `verdict.py`, `_pcv.py`) + `SKILL.md` + 5 references + runnable example. Passes `awesome-phone-call-agents` skill-validation rules (simulated). The submission PR's contribution. |
+| **Claim packs** | healthcare (flagship), supplier-crm, community-services — proves domain-neutrality 3 ways, plus generate-from-a-sentence |
+| **Cherries** (master doc §4.12) | done: batch summary, duplicate-number guard, QR, confidence-tinted evidence, per-number trust badge, re-verification diff, timezone-ordered queue, escalation hints. (e) audio playback → transcript replay (D-010, no audio API). Budget meter is a placeholder (no live credit tracking). |
+| **Tests / CI** | 62 tests, `ruff` clean, `.github/workflows/ci.yml` + `keepwarm.yml` |
+| **Deploy** | Vercel — **https://ghostline-one.vercel.app**, live, healthy, Replay Mode |
+| **Git** | `github.com/bilalhassan-567/GhostLine`, `main`, ~25 commits, no secrets, no AI attribution |
+| **Docs** | README (mermaid architecture), `Docs/demo/DEMO_SCRIPT.md`, `Docs/submission/{DEVPOST_DRAFT, CALL_E_PR_CHECKLIST, SUBMISSION_CHECKLIST, FINAL_GAP_ANALYSIS}.md`, `Docs/research/CALL_E_INTEGRATION.md` + `CALL_E_FEEDBACK.md` |
 
-**Bottom line: this is a greenfield project. Everything except the plan is unbuilt.**
+## Positioning (confirmed 2026-09-06)
 
-## 2. The single most important finding — the schedule has moved
+The **engine is dynamic** (any phone-reachable record via claim packs + the generator). The
+**pitch and demo lead with one industry**: U.S. health-plan provider directories — the CMS
+48.74% number, the $2.76B/yr cost, the REAL Health Providers Act. Aim the copy at **Most
+Practical Use Case**. The dynamic capability is shown as proof it generalizes, not as the
+headline. → [DECISIONS.md](DECISIONS.md) D-020, [COMPETITIVE_STRATEGY.md](COMPETITIVE_STRATEGY.md).
 
-The master doc was written **2026-08-18** and planned against **27 days**. Today is **2026-08-31**. Against the Sep 14 deadline we now have **~14 calendar days**, and a disciplined submit-with-margin target of **Sep 12 (~12 working days)**.
+## Not done — all blocked on the entrant
 
-**~13 days of the original plan are gone with zero code written.** The build plan in §8 of the master doc is no longer executable as written. A compressed plan is in [`ROADMAP.md`](ROADMAP.md).
+1. **Switch Live mode on** — set Vercel env vars (`CALLE_API_KEY`, `GHOSTLINE_MODE=live`,
+   `GHOSTLINE_WEBHOOK_BASE=https://ghostline-one.vercel.app`, `CALLE_WEBHOOK_SECRET`,
+   `UPSTASH_REDIS_REST_URL` + `_TOKEN`, `LLM_API_KEY`), redeploy.
+2. **Test calls** — own line + international. Confirm routing; capture real voicemail/IVR
+   `failure_code` strings for `calle_normalize._FAILURE_TAGS`.
+3. **Live benchmark** — `scripts/run_benchmark.py --source live --csv <labelled test lines>`.
+4. **Demo video** — script ready in `Docs/demo/`.
+5. **Open the PR** — checklist in `Docs/submission/CALL_E_PR_CHECKLIST.md`.
+6. **Devpost** — draft ready; fill the form, submit by Sep 12.
+7. Enable the two GitHub Actions; submit the CALL-E Feedback Survey by Sep 18.
 
-Deadline note: master prompt says "Sep 14, 11:45 PM SGT"; master doc §1.1 corrected this to **Sep 14, 8:45 PM GMT+5** citing the live schedule page. **Plan against 8:45 PM GMT+5 Sep 14** and re-verify the schedule page in the final week.
+## Risks now
 
-## 3. Risks introduced by the compression
-
-| Risk | Impact | Mitigation |
-|---|---|---|
-| International/SG call routing fails, discovered late | Fatal to demo credibility | Test **today**, before any code |
-| CALL-E account/credits not provisioned | Blocks all live work | Confirm today; submit `+200` request today |
-| No time for the reliability benchmark | Weakens Technical Implementation score | Shrink to 25 real calls (master doc §8.1 floor) |
-| Console + deploy + manual-entry path is "never cut" but expensive | Could eat the whole back half | Build CLI vertical slice first; console is a thin FastAPI+HTML layer over the same engine |
-| Python 3.14 dependency gaps | Lost hours | Pin deps early; fall back to 3.12 venv if a wheel is missing |
-
-## 4. What is still strong
-
-- The idea is genuinely differentiated (evidence-span-or-abstain, attestation-not-truth, claim-pack reuse, derived calls, lifecycle framing).
-- The master doc already did the hard thinking: research citations, kill-list, safety mapping, judge psychology. We do not need to re-derive strategy — we need to **execute a compressed slice of it**.
-- CALL-E usage is architecturally central, not bolted on — passes Stage-One gate trivially and scores well on Technical Implementation if `plan_call → run_call → get_call_run` is genuinely wired.
-
-## 5. Immediate next actions (today)
-
-1. Confirm CALL-E account + API key + free-call balance; submit `+200` request form.
-2. One real call to own phone; one to an international/SG number if arrangeable.
-3. `git init`, scaffold repo, `pyproject.toml`, pin deps.
-4. Build the Replay harness + 9 fixtures (offline, no calls).
-5. Lock stack + deployment target (pending user confirmation).
+| Risk | Status |
+|---|---|
+| Time (8 days, entrant hasn't started the critical path) | Medium. The work is ~1 focused day. Needs to start. |
+| International call routing unproven | Untested — Day-1 task never done. `unsupported_region` gives a clean signal if it fails. |
+| Benchmark shows only a fixture "pipeline check", not live reliability | Honestly labelled in the UI; real number needs a live batch. |
+| `+200` calls request (submitted Aug 31) | Should be processed by now — entrant to confirm on the dashboard. |

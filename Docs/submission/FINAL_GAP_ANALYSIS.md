@@ -1,6 +1,7 @@
 # Final gap analysis
 
-As of 2026-08-31 (autonomous build session). Brutally honest.
+Updated 2026-09-06 (UI rebuilt; no other change since the Aug-31 build sprint). Brutally honest.
+**8 days to the deadline. The entrant has not started the critical path.**
 
 | Area | Status | Evidence | Missing | Priority |
 |---|---|---|---|---|
@@ -16,6 +17,7 @@ As of 2026-08-31 (autonomous build session). Brutally honest.
 | Security | Strong | dial allowlist + injection test; no transcript/LLM number reaches the dialer; XSS-safe transcript render; disclosure in every goal | `security-review` skill pass before submission | P1 |
 | Tests | Strong | 60, ruff clean, CI on push | — | — |
 | Deployment | Good | Vercel live (Replay); Phase-2 webhook path built, needs env vars | Flip on Live on Vercel (Upstash + CALL-E env) | **P0 (entrant)** |
+| Product experience / UI | Strong (rebuilt Sep 6) | editorial/instrument design; verdict readouts, pulled quotes, document-style transcript, healthcare-forward landing, QR "try it" | Screenshots/video to prove it | P1 (entrant) |
 | Demo | Not started | Script written ([../demo/DEMO_SCRIPT.md](../demo/DEMO_SCRIPT.md)) | Record it — needs Live mode on | **P0 (entrant)** |
 | README | Strong | full rewrite w/ mermaid diagram | — | — |
 | CALL-E PR | Not opened | Skill built + passes validation (simulated); checklist written | Fork → branch → validate → PR | **P0 (entrant + walkthrough)** |

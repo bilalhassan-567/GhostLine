@@ -1,9 +1,21 @@
 # GHOSTLINE — Competitive Strategy
 
-**Date:** 2026-08-31 · **Owner:** single entrant · **Based on:** [`GHOSTLINE_MASTER_DOC.md`](../masterdocs/GHOSTLINE_MASTER_DOC.md)
+**Date:** 2026-08-31 · updated 2026-09-06 · **Owner:** single entrant · **Based on:** [`GHOSTLINE_MASTER_DOC.md`](../masterdocs/GHOSTLINE_MASTER_DOC.md)
 This is the condensed, decision-ready strategy. The master doc is the full spec; this is what we optimise for and what we cut.
 
 ---
+
+## Positioning (locked 2026-09-06 — D-020 / A12)
+
+**Engine dynamic, pitch healthcare-forward.** The landing page, demo video, and Devpost copy
+lead with **U.S. health-plan provider directories** — the CMS 48.74% number, the $2.76B/yr
+cost, the REAL Health Providers Act — and aim squarely at **Most Practical Use Case ($4,000)**.
+The engine's domain-neutrality is *demonstrated* (healthcare + supplier-crm + community-services
+packs, plus generate-a-pack-from-a-sentence on `/packs`) as proof it generalizes — it is not the
+headline. One project wins one prize; don't straddle "Practical" and "Innovative".
+
+The "Target user" and "Core problem" sections below still frame the universal case for internal
+reasoning, but the *outward* story is healthcare-first.
 
 ## Core problem
 

@@ -85,6 +85,21 @@ First-come-first-served while supplies last; form's own cutoff Sep 14 12:00 PM S
 clause names "API or SDKs for Python/TypeScript, or CALL-E Skill or MCP" — CLI is marketing
 copy only. Our runtime path is the SDK (+ MCP for the Skill).
 
+**A12 — Positioning: dynamic engine, healthcare-forward pitch (entrant, 2026-09-06).** §7.2
+offered a "universal frame first" pitch. The entrant chose a focused single-industry story:
+the landing, demo, and Devpost lead with U.S. health-plan provider directories and aim at
+**Most Practical Use Case**. The engine's domain-neutrality is *demonstrated* (healthcare +
+supplier-crm + community-services packs, plus generate-a-pack-from-a-sentence) as proof it
+generalizes, not as the headline. See `Docs/planning/DECISIONS.md` D-020.
+
+**A13 — Build status snapshot (2026-09-06).** Engine, web console (UI rebuilt), CLI, the
+`phone-claim-verifier` Agent Skill, derived calls, the pack generator, the Phase-2 webhook
+live path, and the benchmark harness are all built; 62 tests, CI, ruff clean; deployed to
+Vercel (Replay Mode) at ghostline-one.vercel.app. **Everything still open is entrant-blocked:**
+switch Vercel env vars to enable Live, place test calls (own line + international), run the
+live benchmark, record the demo, open the `awesome-phone-call-agents` PR, submit on Devpost.
+Full detail: `Docs/planning/CURRENT_STATE.md` and `Docs/submission/FINAL_GAP_ANALYSIS.md`.
+
 ---
 
 ## 0. TL;DR — the one-paragraph version

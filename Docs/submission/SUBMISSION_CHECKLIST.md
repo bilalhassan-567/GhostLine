@@ -1,6 +1,7 @@
 # Submission checklist
 
 Deadline: **Sep 14, 2026, 8:45 PM GMT+5** (= 11:45 PM SGT). Submit target: **Sep 12**.
+*As of Sep 6: build done, deploy live in Replay Mode, all boxes below are entrant actions.*
 
 ## Required by the Official Rules
 
