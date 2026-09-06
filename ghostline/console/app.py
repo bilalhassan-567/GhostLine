@@ -97,7 +97,7 @@ def _public_url(request: Request) -> str:
 def _qr_svg(url: str) -> Markup:
     import segno
 
-    return Markup(segno.make(url, error="m").svg_inline(scale=4, dark="#4fd1a5", light=None))
+    return Markup(segno.make(url, error="m").svg_inline(scale=4, dark="#0a0a0a", light=None))
 
 
 @app.get("/health")
@@ -117,11 +117,12 @@ def health() -> JSONResponse:
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     url = _public_url(request)
+    packs = sorted(list_packs(), key=lambda p: (p.pack_id != "healthcare", p.pack_id))
     return templates.TemplateResponse(
         request,
         "index.html",
         {
-            "packs": list_packs(),
+            "packs": packs,
             "pack": load_pack("healthcare"),
             "settings": get_settings(),
             "live_disabled": _LIVE_DISABLED,

@@ -2,37 +2,46 @@
 {% block title %}Claim packs &mdash; Ghostline{% endblock %}
 {% block body %}
 
-<section class="hero">
-  <h1 style="font-size:24px">Claim packs</h1>
-  <p class="lede" style="font-size:14px">A new domain is a new pack &mdash; a small config file,
-    never a code change. Each claim is one testable fact, phrased as a question, with strict
-    guidance on what counts as a yes.</p>
-</section>
+<p class="eyebrow">Extension point</p>
+<h1 style="font-size:24px; margin:10px 0 14px">Claim packs</h1>
+<p class="lede">
+  A claim pack is a config file &mdash; the only thing that changes to point Ghostline at a new
+  kind of record. Each claim is one testable fact, phrased as a question, with strict guidance
+  on what counts as a definite yes. Healthcare is bundled; supplier and community-services packs
+  prove it generalizes.
+</p>
 
 {% for p in packs %}
-<div class="panel">
-  <h2>{{ p.display_name }}</h2>
-  <p class="sub"><code>{{ p.ref }}</code> &middot; attestations valid {{ p.expires_after_days }} days
-    &middot; {{ p.claims | length }} claims</p>
-  {% if p.description %}<p class="muted" style="margin-bottom:14px">{{ p.description }}</p>{% endif %}
-  {% for c in p.claims %}
-  <div class="claim">
-    <div class="top"><span class="cid">{{ c.claim_id }}</span></div>
-    <div class="reason" style="color:var(--ink);margin-top:4px">{{ c.question }}</div>
-    {% if c.answer_guidance %}<div class="reason">{{ c.answer_guidance }}</div>{% endif %}
+<div class="card" style="margin-top:18px">
+  <div class="hd">
+    <h2>{{ p.display_name }}</h2>
+    <span class="muted" style="font:400 11px/1 var(--mono)">{{ p.ref }} &middot; valid {{ p.expires_after_days }}d &middot; {{ p.claims | length }} claims</span>
   </div>
-  {% endfor %}
+  <div class="bd">
+    {% if p.description %}<p class="reason" style="margin-bottom:14px">{{ p.description }}</p>{% endif %}
+    {% for c in p.claims %}
+    <div class="claim">
+      <div class="cid" style="margin-bottom:5px">{{ c.claim_id }}</div>
+      <p style="color:var(--fg); font-size:14.5px">{{ c.question }}</p>
+      {% if c.answer_guidance %}<p class="reason" style="margin-top:6px">{{ c.answer_guidance }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endfor %}
 
-<div class="panel">
-  <h2>Generate one from a sentence</h2>
-  <p class="sub">Describe what you want checked. An LLM drafts the claims; you approve them
-    before anything is saved or dialed.</p>
-  <form method="post" action="/packs/generate">
-    <textarea name="prompt" placeholder="verify these restaurants are still open at the address on file, and still take reservations"></textarea>
-    <p style="margin-top:12px"><button class="btn" type="submit">Draft a pack &rarr;</button></p>
-  </form>
+<div class="card" style="margin-top:18px">
+  <div class="hd"><h2>Generate one from a sentence</h2></div>
+  <div class="bd">
+    <p class="muted" style="margin-bottom:12px">
+      Describe what you want checked. An LLM drafts the claims; you approve them before anything
+      is saved or dialed &mdash; the same rule as derived calls.
+    </p>
+    <form method="post" action="/packs/generate">
+      <textarea name="prompt" placeholder="verify these clinics still accept the plan and still take new patients"></textarea>
+      <p style="margin-top:12px"><button class="btn primary" type="submit">Draft a pack</button></p>
+    </form>
+  </div>
 </div>
 
 {% endblock %}

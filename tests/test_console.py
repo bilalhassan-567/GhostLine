@@ -27,9 +27,9 @@ def test_index_renders_form(client):
 def test_replay_all_renders_nine_scenarios(client):
     r = client.get("/replay")
     assert r.status_code == 200
-    assert r.text.count('class="rec"') == 9  # one card per fixture
-    assert r.text.count("NO_CONTACT") >= 4
-    assert "MATCH" in r.text and "MISMATCH" in r.text
+    assert r.text.count("data-rec=") == 9  # one record block per fixture
+    assert r.text.count('data-verdict="NO_CONTACT"') >= 4
+    assert 'data-verdict="MATCH"' in r.text and 'data-verdict="MISMATCH"' in r.text
 
 
 def test_single_scenario_unclear_generic(client):
@@ -61,7 +61,7 @@ def test_verify_replay_renders_result_directly(client):
               "phone": "+12025550142", "region": "US", "claim__accepts_plan": "yes"},
     )
     assert r.status_code == 200
-    assert 'class="chip' in r.text
+    assert "data-verdict=" in r.text
 
 
 def test_live_disabled_on_serverless(monkeypatch):
