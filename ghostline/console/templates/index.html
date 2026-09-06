@@ -5,7 +5,7 @@
   <div>
     <p class="eyebrow">Phone-verified provider directories</p>
     <h1 style="font-size:31px; line-height:1.2; margin:12px 0 18px">
-      Half of every plan's provider directory is wrong.<br>Ghostline calls to find out which half.
+      Half of every plan's provider directory is wrong. Ghostline calls to find out which half.
     </h1>
     <p class="lede">
       CMS found <b>48.74%</b> of Medicare Advantage directory locations had at least one error;
@@ -20,20 +20,27 @@
   </div>
   <aside class="tryit">
     <div class="qr">{{ qr_svg }}</div>
-    <p class="eyebrow" style="margin-bottom:6px">Try it on your own line</p>
-    <p class="muted" style="line-height:1.6">
-      Scan, or open <a href="{{ public_url }}" style="color:var(--fg-2)">this page</a> on a
-      phone. In live mode you enter your own number in the form and Ghostline calls you &mdash;
-      the same path every real user takes.
-    </p>
+    <div>
+      <p class="eyebrow" style="margin-bottom:6px">Try it on your own line</p>
+      <p class="muted" style="line-height:1.6">
+        Scan, or open <a href="{{ public_url }}" style="color:var(--fg-2)">this page</a> on a
+        phone. In live mode you enter your own number in the form and Ghostline calls you.
+      </p>
+    </div>
   </aside>
 </div>
 <style>
-  .masthead{display:grid; grid-template-columns:1fr 224px; gap:44px; align-items:start}
-  .tryit{border:1px solid var(--edge); border-radius:12px; padding:16px; background:var(--bg-1)}
-  .tryit .qr{width:100%; height:auto; aspect-ratio:1; background:#fff; border-radius:8px; padding:10px; margin-bottom:12px}
+  .masthead{display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:44px; align-items:start}
+  .masthead > *{min-width:0}
+  .tryit{border:1px solid var(--edge); border-radius:12px; padding:16px; background:var(--bg-1); overflow:hidden}
+  .tryit .qr{width:132px; height:132px; background:#fff; border-radius:8px; padding:10px; margin:0 0 12px}
   .tryit .qr svg{display:block; width:100%; height:100%}
-  @media (max-width:820px){ .masthead{grid-template-columns:1fr} .tryit{max-width:340px} }
+  @media (max-width:820px){
+    .masthead{grid-template-columns:minmax(0,1fr); gap:24px}
+    .tryit{display:flex; gap:16px; align-items:center}
+    .tryit .qr{flex:none; width:96px; height:96px; margin:0}
+    .tryit > div{min-width:0}
+  }
 </style>
 
 <div class="lifecycle">

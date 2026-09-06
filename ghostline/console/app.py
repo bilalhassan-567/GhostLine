@@ -97,7 +97,12 @@ def _public_url(request: Request) -> str:
 def _qr_svg(url: str) -> Markup:
     import segno
 
-    return Markup(segno.make(url, error="m").svg_inline(scale=4, dark="#0a0a0a", light=None))
+    # omitsize -> viewBox only, so CSS width scales it cleanly to any container.
+    return Markup(
+        segno.make(url, error="m").svg_inline(
+            scale=4, border=2, dark="#0a0a0a", light=None, omitsize=True
+        )
+    )
 
 
 @app.get("/health")
