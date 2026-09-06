@@ -1,6 +1,6 @@
 """Runtime configuration, loaded from environment / .env.
 
-Nothing secret is ever logged or echoed. `CALLE_API_KEY` and `LLM_API_KEY` stay in memory.
+Nothing secret is ever logged or echoed. API keys stay in memory only.
 """
 
 from __future__ import annotations
@@ -28,8 +28,10 @@ class Settings(BaseSettings):
     calle_api_key: str = Field(default="", alias="CALLE_API_KEY")
     calle_base_url: str = Field(default="https://api.heycall-e.com", alias="CALLE_BASE_URL")
 
-    # --- LLM extractor ---
-    llm_api_key: str = Field(default="", alias="LLM_API_KEY")
+    # --- LLM extractor / pack generator (any one provider) ---
+    gemini_api_key: str = Field(default="", alias="GEMINI_API_KEY")   # free tier, no card
+    gemini_model: str = Field(default="gemini-2.5-flash", alias="GEMINI_MODEL")
+    llm_api_key: str = Field(default="", alias="LLM_API_KEY")         # Anthropic
     llm_model: str = Field(default="claude-sonnet-4-5", alias="LLM_MODEL")
 
     # --- safety / budget ---
@@ -60,7 +62,7 @@ class Settings(BaseSettings):
 
     @property
     def has_llm(self) -> bool:
-        return bool(self.llm_api_key)
+        return bool(self.gemini_api_key or self.llm_api_key)
 
 
 @lru_cache

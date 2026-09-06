@@ -20,9 +20,9 @@ state after the build sprint (Aug 31) and the UI rebuild (Sep 6).
 | **Agent Skill** (`skills/phone-claim-verifier/`) | Standalone stdlib scripts (`plan.py`, `verdict.py`, `_pcv.py`) + `SKILL.md` + 5 references + runnable example. Passes `awesome-phone-call-agents` skill-validation rules (simulated). The submission PR's contribution. |
 | **Claim packs** | healthcare (flagship), supplier-crm, community-services — proves domain-neutrality 3 ways, plus generate-from-a-sentence |
 | **Cherries** (master doc §4.12) | done: batch summary, duplicate-number guard, QR, confidence-tinted evidence, per-number trust badge, re-verification diff, timezone-ordered queue, escalation hints. (e) audio playback → transcript replay (D-010, no audio API). Budget meter is a placeholder (no live credit tracking). |
-| **Tests / CI** | 62 tests, `ruff` clean, `.github/workflows/ci.yml` + `keepwarm.yml` |
+| **Tests / CI** | 64 tests, `ruff` clean, `.github/workflows/ci.yml` + `keepwarm.yml` |
 | **Deploy** | Vercel — **https://ghostline-one.vercel.app**, live, healthy, Replay Mode |
-| **Git** | `github.com/bilalhassan-567/GhostLine`, `main`, ~25 commits, no secrets, no AI attribution |
+| **Git** | `github.com/bilalhassan-567/GhostLine`, `main`, ~30 commits, no secrets, no AI attribution |
 | **Docs** | README (mermaid architecture), `Docs/demo/DEMO_SCRIPT.md`, `Docs/submission/{DEVPOST_DRAFT, CALL_E_PR_CHECKLIST, SUBMISSION_CHECKLIST, FINAL_GAP_ANALYSIS}.md`, `Docs/research/CALL_E_INTEGRATION.md` + `CALL_E_FEEDBACK.md` |
 
 ## Positioning (confirmed 2026-09-06)
@@ -37,7 +37,7 @@ headline. → [DECISIONS.md](DECISIONS.md) D-020, [COMPETITIVE_STRATEGY.md](COMP
 
 1. **Switch Live mode on** — set Vercel env vars (`CALLE_API_KEY`, `GHOSTLINE_MODE=live`,
    `GHOSTLINE_WEBHOOK_BASE=https://ghostline-one.vercel.app`, `CALLE_WEBHOOK_SECRET`,
-   `UPSTASH_REDIS_REST_URL` + `_TOKEN`, `LLM_API_KEY`), redeploy.
+   `UPSTASH_REDIS_REST_URL` + `_TOKEN`, `GEMINI_API_KEY` [free] or `LLM_API_KEY`), redeploy.
 2. **Test calls** — own line + international. Confirm routing; capture real voicemail/IVR
    `failure_code` strings for `calle_normalize._FAILURE_TAGS`.
 3. **Live benchmark** — `scripts/run_benchmark.py --source live --csv <labelled test lines>`.

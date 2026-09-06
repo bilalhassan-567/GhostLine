@@ -139,11 +139,15 @@ class LLMExtractor:
 
     def __init__(self, settings: Settings | None = None) -> None:
         self.settings = settings or get_settings()
-        from anthropic import Anthropic
+        from .llm import provider
 
-        self._client = Anthropic(api_key=self.settings.llm_api_key)
+        if provider(self.settings) is None:
+            raise RuntimeError("no LLM provider configured")
+        self.name = f"llm:{provider(self.settings)}"
 
     def extract(self, transcript: Transcript, claim: Claim, record: Record) -> Extraction:
+        from .llm import complete
+
         convo = "\n".join(f"[{t.speaker.value}] {t.text}" for t in transcript.turns)
         prompt = (
             f"CLAIM: {claim.question.strip()}\n"
@@ -151,20 +155,14 @@ class LLMExtractor:
             f"RECORD: {record.name}"
             + (f", {record.address}" if record.address else "")
             + f"\n\nTRANSCRIPT:\n{convo}\n\n"
-            "Return JSON with keys: answer_value (true|false|null for a yes/no claim), "
-            "answer_text (the responder's answer in their own words, may paraphrase), "
+            "Return ONLY a JSON object with keys: answer_value (true|false|null for a yes/no "
+            "claim), answer_text (the responder's answer in their own words, may paraphrase), "
             "evidence_span (a verbatim substring of ONE user turn that proves the answer, or "
             "null), source_role (front_desk|answering_service|call_center|billing_dept|"
             "voicemail|ivr_only|unknown), conflicting (true if the responder contradicted "
             "themselves), reasoning (one sentence)."
         )
-        msg = self._client.messages.create(
-            model=self.settings.llm_model,
-            max_tokens=600,
-            system=_LLM_SYSTEM,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = "".join(b.text for b in msg.content if getattr(b, "type", None) == "text")
+        raw = complete(_LLM_SYSTEM, prompt, settings=self.settings, max_tokens=600)
         data = _loads_json(raw)
 
         span = data.get("evidence_span")

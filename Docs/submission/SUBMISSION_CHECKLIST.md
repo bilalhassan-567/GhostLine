@@ -19,7 +19,7 @@ Deadline: **Sep 14, 2026, 8:45 PM GMT+5** (= 11:45 PM SGT). Submit target: **Sep
 - [ ] `https://ghostline-one.vercel.app/health` → 200.
 - [ ] Replay Mode works end-to-end (no creds needed).
 - [ ] Live Mode switched on: `GHOSTLINE_MODE=live`, `CALLE_API_KEY`, `GHOSTLINE_WEBHOOK_BASE`,
-      `CALLE_WEBHOOK_SECRET`, `UPSTASH_REDIS_REST_URL` + `_TOKEN`, `LLM_API_KEY` set on Vercel.
+      `CALLE_WEBHOOK_SECRET`, `UPSTASH_REDIS_REST_URL` + `_TOKEN`, and `GEMINI_API_KEY` (free, no card) or `LLM_API_KEY` set on Vercel.
 - [ ] A stranger (ideally another country) types their own number and gets a real call + verdict.
 - [ ] The keep-warm GitHub Action is enabled (Actions tab → enable workflows).
 - [ ] Reserved CALL-E call budget for the judging window is untouched.

@@ -46,6 +46,36 @@ def test_generate_pack_insurance_gets_90_day_window():
     assert pack.expires_after_days == 90
 
 
+# --- provider-agnostic LLM layer ---
+def test_llm_provider_selection():
+    from ghostline import llm
+    from ghostline.config import Settings
+
+    assert llm.provider(Settings()) is None
+    assert llm.provider(Settings(GEMINI_API_KEY="x")) == "gemini"
+    assert llm.provider(Settings(LLM_API_KEY="x")) == "anthropic"
+    assert llm.provider(Settings(GEMINI_API_KEY="x", LLM_API_KEY="y")) == "gemini"
+
+
+def test_gemini_path(monkeypatch):
+    from ghostline import extractor, llm
+    from ghostline.config import Settings
+
+    class _R:
+        def raise_for_status(self): ...
+        def json(self):
+            return {"candidates": [{"content": {"parts": [{"text": '{"ok": 1}'}]}}]}
+
+    def _post(url, params=None, json=None, timeout=None):
+        assert "generativelanguage.googleapis.com" in url and params["key"] == "k"
+        return _R()
+
+    monkeypatch.setattr(llm.httpx, "post", _post)
+    s = Settings(GEMINI_API_KEY="k")
+    assert llm.complete("sys", "prompt", settings=s) == '{"ok": 1}'
+    assert extractor.get_extractor(s).name == "llm:gemini"
+
+
 # --- benchmark ---
 def test_replay_benchmark_shape():
     r = run_replay_benchmark()

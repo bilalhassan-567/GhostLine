@@ -22,6 +22,6 @@ Settings → *Factory rebuild*) picks up the latest code.
 | Name | Needed for |
 |---|---|
 | `CALLE_API_KEY` | Live calls. Without it the console runs in Replay Mode only. |
-| `LLM_API_KEY` | The LLM extractor. Without it the deterministic extractor is used. |
+| `GEMINI_API_KEY` or `LLM_API_KEY` | The LLM extractor + pack generator. Gemini's free tier needs no card. Without either, the deterministic path is used. |
 | `GHOSTLINE_MODE` | `replay` (default) or `live`. |
 | `GHOSTLINE_TEST_NUMBERS` | Comma-separated E.164 lines you own, for the demo. |

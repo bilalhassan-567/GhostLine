@@ -36,28 +36,18 @@ _SYSTEM = (
 
 
 def _llm_pack(prompt: str, settings: Settings) -> dict:
-    from anthropic import Anthropic
+    from .llm import complete
 
-    client = Anthropic(api_key=settings.llm_api_key)
-    msg = client.messages.create(
-        model=settings.llm_model,
-        max_tokens=900,
-        system=_SYSTEM,
-        messages=[
-            {
-                "role": "user",
-                "content": (
-                    f"Request: {prompt.strip()}\n\n"
-                    "Return JSON: {display_name, expires_after_days, call_preamble, "
-                    "claims:[{claim_id (snake_case), question, answer_guidance, "
-                    "subject_terms:[lowercase phrases that mark a turn as on-topic]}]}. "
-                    "2-4 claims. Each question names its own subject so the answer is "
-                    "unambiguous. answer_guidance must reject non-specific answers."
-                ),
-            }
-        ],
-    )
-    raw = "".join(b.text for b in msg.content if getattr(b, "type", None) == "text").strip()
+    raw = complete(
+        _SYSTEM,
+        f"Request: {prompt.strip()}\n\n"
+        "Return ONLY a JSON object: {display_name, expires_after_days, call_preamble, "
+        "claims:[{claim_id (snake_case), question, answer_guidance, "
+        "subject_terms:[lowercase phrases that mark a turn as on-topic]}]}. "
+        "2-4 claims. Each question names its own subject so the answer is unambiguous. "
+        "answer_guidance must reject non-specific answers.",
+        settings=settings,
+    ).strip()
     if raw.startswith("```"):
         raw = re.sub(r"^```(?:json)?|```$", "", raw, flags=re.IGNORECASE | re.MULTILINE).strip()
     return json.loads(raw)
