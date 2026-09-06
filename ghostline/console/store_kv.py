@@ -21,8 +21,16 @@ from ..derived import DerivedProposal
 from ..models import Attestation, Record, Transcript
 from .runs import RecordRun, Run
 
+# Real env vars win (Vercel injects them); otherwise fall back to .env via pydantic settings
+# so a local `GHOSTLINE_MODE=live` run exercises the same Upstash path as production.
 _URL = os.environ.get("UPSTASH_REDIS_REST_URL")
 _TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN")
+if not (_URL and _TOKEN):
+    from ..config import get_settings
+
+    _s = get_settings()
+    _URL = _URL or _s.upstash_url or None
+    _TOKEN = _TOKEN or _s.upstash_token or None
 _TTL_S = 60 * 60 * 24 * 40  # survive the judging window
 _mem: dict[str, str] = {}
 
