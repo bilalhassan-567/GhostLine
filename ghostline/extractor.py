@@ -18,6 +18,8 @@ import json
 import re
 from typing import Protocol
 
+import httpx
+
 from .config import Settings, get_settings
 from .models import Claim, Extraction, Record, SourceRole, Transcript
 
@@ -144,8 +146,20 @@ class LLMExtractor:
         if provider(self.settings) is None:
             raise RuntimeError("no LLM provider configured")
         self.name = f"llm:{provider(self.settings)}"
+        self._fallback = HeuristicExtractor()
 
     def extract(self, transcript: Transcript, claim: Claim, record: Record) -> Extraction:
+        try:
+            return self._extract_llm(transcript, claim, record)
+        except (httpx.HTTPError, json.JSONDecodeError, RuntimeError, KeyError, ValueError) as exc:
+            # Transient API error, rate limit, or unparseable response: never crash a run —
+            # fall back to the deterministic extractor and say so in the record.
+            print(f"[ghostline] LLM extraction failed ({exc!s}); using heuristic extractor")
+            out = self._fallback.extract(transcript, claim, record)
+            out.reasoning = (out.reasoning + " [LLM unavailable; deterministic fallback]").strip()
+            return out
+
+    def _extract_llm(self, transcript: Transcript, claim: Claim, record: Record) -> Extraction:
         from .llm import complete
 
         convo = "\n".join(f"[{t.speaker.value}] {t.text}" for t in transcript.turns)

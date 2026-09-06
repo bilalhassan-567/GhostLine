@@ -11,6 +11,8 @@ If neither is set, `complete()` raises and callers fall back to their determinis
 
 from __future__ import annotations
 
+import time
+
 import httpx
 
 from .config import Settings, get_settings
@@ -56,7 +58,14 @@ def _gemini(system: str, prompt: str, s: Settings, max_tokens: int) -> str:
             "responseMimeType": "application/json",
         },
     }
-    r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=60)
+    # Gemini free tier throws transient 429/503 under load; a couple of short retries clears
+    # most of them before the caller's deterministic fallback has to step in.
+    for attempt in range(3):
+        r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=60)
+        if r.status_code in (429, 500, 503) and attempt < 2:
+            time.sleep(1.5 * (attempt + 1))
+            continue
+        break
     r.raise_for_status()
     data = r.json()
     cand = data["candidates"][0]

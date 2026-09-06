@@ -62,6 +62,8 @@ def test_gemini_path(monkeypatch):
     from ghostline.config import Settings
 
     class _R:
+        status_code = 200
+
         def raise_for_status(self): ...
         def json(self):
             return {"candidates": [{"content": {"parts": [{"text": '{"ok": 1}'}]}}]}
@@ -74,6 +76,34 @@ def test_gemini_path(monkeypatch):
     s = Settings(GEMINI_API_KEY="k")
     assert llm.complete("sys", "prompt", settings=s) == '{"ok": 1}'
     assert extractor.get_extractor(s).name == "llm:gemini"
+
+
+def test_llm_extractor_falls_back_on_api_error(monkeypatch):
+    """A transient Gemini 503/429 must never crash a run — deterministic path takes over."""
+    import httpx
+
+    from ghostline import llm
+    from ghostline.claim_pack import load_pack
+    from ghostline.config import Settings
+    from ghostline.extractor import LLMExtractor
+    from ghostline.models import CallOutcome, Record, Speaker, Transcript, TranscriptTurn
+
+    def _boom(system, prompt, **kw):
+        raise httpx.HTTPStatusError("503", request=None, response=None)
+
+    monkeypatch.setattr(llm, "complete", _boom)
+    pack = load_pack("healthcare")
+    claim = pack.claim("accepts_plan")
+    rec = Record(record_id="r1", name="Clinic", phone="+12025550110", region="US",
+                 claims={"accepts_plan": True})
+    tr = Transcript(call_id="c1", outcome=CallOutcome.CONVERSATION, turns=[
+        TranscriptTurn(speaker=Speaker.BOT, text="Do you accept the Northline Health plan?"),
+        TranscriptTurn(speaker=Speaker.USER, text="Yes, we take the Northline Health plan."),
+    ])
+    ext = LLMExtractor(Settings(GEMINI_API_KEY="k"))
+    out = ext.extract(tr, claim, rec)
+    assert out.answer_value is True
+    assert "deterministic fallback" in out.reasoning
 
 
 # --- benchmark ---
