@@ -5,6 +5,7 @@ Create one at https://vercel.com/account/tokens (Read scope is enough).
 
     python scripts/vercel_logs.py                 # latest deployment: status + errors + recent runtime logs
     python scripts/vercel_logs.py deployments     # list recent deployments
+    python scripts/vercel_logs.py env             # env vars set on the Vercel project (names + targets)
     python scripts/vercel_logs.py build [dpl_id]  # build events for a deployment (default: latest)
     python scripts/vercel_logs.py runtime [dpl_id] [seconds]  # stream runtime logs (default: latest, 8s)
 """
@@ -49,6 +50,21 @@ def list_deployments(c: httpx.Client, limit: int = 8) -> list[dict]:
     r = c.get("/v7/deployments", params={"app": PROJECT, "limit": limit})
     r.raise_for_status()
     return r.json().get("deployments", [])
+
+
+def print_env(c: httpx.Client) -> None:
+    r = c.get(f"/v9/projects/{PROJECT}/env")
+    r.raise_for_status()
+    envs = r.json().get("envs", [])
+    need = {
+        "CALLE_API_KEY", "GHOSTLINE_MODE", "GHOSTLINE_WEBHOOK_BASE", "CALLE_WEBHOOK_SECRET",
+        "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "LLM_API_KEY",
+    }
+    have = {e["key"] for e in envs}
+    for e in sorted(envs, key=lambda x: x["key"]):
+        print(f"  set   {e['key']:26} [{','.join(e.get('target', []))}]")
+    for k in sorted(need - have):
+        print(f"  MISS  {k:26} (needed for Live mode)")
 
 
 def print_deployments(c: httpx.Client) -> None:
@@ -114,6 +130,8 @@ def main() -> None:
             latest(c)
         elif args[0] == "deployments":
             print_deployments(c)
+        elif args[0] == "env":
+            print_env(c)
         elif args[0] == "build":
             dpl = args[1] if len(args) > 1 else list_deployments(c, 1)[0]["uid"]
             build_events(c, dpl)
