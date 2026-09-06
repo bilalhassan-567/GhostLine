@@ -46,7 +46,12 @@ def _gemini(system: str, prompt: str, s: Settings, max_tokens: int) -> str:
     body = {
         "systemInstruction": {"parts": [{"text": system}]},
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0, "maxOutputTokens": max_tokens},
+        "generationConfig": {
+            "temperature": 0,
+            "maxOutputTokens": max_tokens,
+            # Both call sites want a JSON object back.
+            "responseMimeType": "application/json",
+        },
     }
     r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=45)
     r.raise_for_status()
