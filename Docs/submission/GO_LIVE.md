@@ -23,16 +23,18 @@ and only updates one run's display. Add signing later if you want the hardening.
 ## Phase A — accounts & keys (~20 min)
 
 ### A1. Gemini key
-1. https://aistudio.google.com/apikey → **Create API key** → **Create API key in a new project**.
-2. Copy it (`AIza…`).
-3. Check your limits at https://aistudio.google.com/rate-limit — make sure you're on a **Flash**
-   model (Ghostline defaults to `gemini-2.5-flash`; if the daily limit looks tight, plan to set
-   `GEMINI_MODEL=gemini-2.5-flash-lite`).
+1. https://aistudio.google.com/apikey → **Create API key** → **Create API key in a new project**
+   (a new project keeps the free daily quota separate from your other app's).
+2. Copy it. Newer keys are prefixed `AQ.` (older ones `AIza`); either works.
+3. Ghostline defaults to `GEMINI_MODEL=gemini-3.6-flash` (free tier). If the daily limit looks
+   tight at https://aistudio.google.com/rate-limit, set `GEMINI_MODEL=gemini-flash-lite-latest`.
 
 ### A2. Upstash Redis
 1. https://console.upstash.com → sign up (email, no card).
-2. **Create Database** → Redis → any region → Free plan.
-3. On the database page, the **REST API** section shows two values — copy both:
+2. **Create Database**: Name it anything (e.g. `ghostline`); **Primary Region** = pick the one
+   closest to Washington D.C. / `us-east-1` (that's where Vercel Hobby runs functions); leave
+   **Read Regions** empty and **Eviction** off → **Next** → **Free** plan.
+3. On the database page, scroll to the **REST API** block and copy both:
    - `UPSTASH_REDIS_REST_URL` (looks like `https://xxx.upstash.io`)
    - `UPSTASH_REDIS_REST_TOKEN`
 
@@ -53,7 +55,7 @@ Vercel → the `ghostline` project → **Settings → Environment Variables**. F
 ```
 GHOSTLINE_MODE            live
 GHOSTLINE_WEBHOOK_BASE    https://ghostline-one.vercel.app
-GEMINI_API_KEY            AIza…                          (from A1)
+GEMINI_API_KEY            AQ.… or AIza…                   (from A1)
 UPSTASH_REDIS_REST_URL    https://xxx.upstash.io         (from A2)
 UPSTASH_REDIS_REST_TOKEN  …                              (from A2)
 ```

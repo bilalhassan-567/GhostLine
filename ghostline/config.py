@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # --- LLM extractor / pack generator (any one provider) ---
     gemini_api_key: str = Field(default="", alias="GEMINI_API_KEY")   # free tier, no card
-    gemini_model: str = Field(default="gemini-2.5-flash", alias="GEMINI_MODEL")
+    gemini_model: str = Field(default="gemini-3.6-flash", alias="GEMINI_MODEL")
     llm_api_key: str = Field(default="", alias="LLM_API_KEY")         # Anthropic
     llm_model: str = Field(default="claude-sonnet-4-5", alias="LLM_MODEL")
 

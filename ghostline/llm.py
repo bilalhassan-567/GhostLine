@@ -48,16 +48,25 @@ def _gemini(system: str, prompt: str, s: Settings, max_tokens: int) -> str:
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": 0,
-            "maxOutputTokens": max_tokens,
+            # gemini-3.x flash are thinking models: maxOutputTokens is spent on hidden
+            # reasoning *and* the answer, so give generous headroom above the answer budget
+            # or the visible JSON comes back empty with finishReason MAX_TOKENS.
+            "maxOutputTokens": max_tokens + 3000,
             # Both call sites want a JSON object back.
             "responseMimeType": "application/json",
         },
     }
-    r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=45)
+    r = httpx.post(url, params={"key": s.gemini_api_key}, json=body, timeout=60)
     r.raise_for_status()
     data = r.json()
-    parts = data["candidates"][0]["content"]["parts"]
-    return "".join(part.get("text", "") for part in parts)
+    cand = data["candidates"][0]
+    parts = cand.get("content", {}).get("parts") or []
+    # Skip any part flagged as model thinking; keep the answer text.
+    text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
+    if not text:
+        reason = cand.get("finishReason", "unknown")
+        raise RuntimeError(f"Gemini returned no text (finishReason={reason})")
+    return text
 
 
 def _anthropic(system: str, prompt: str, s: Settings, max_tokens: int) -> str:

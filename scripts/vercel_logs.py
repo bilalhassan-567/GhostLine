@@ -57,8 +57,8 @@ def print_env(c: httpx.Client) -> None:
     r.raise_for_status()
     envs = r.json().get("envs", [])
     need = {
-        "CALLE_API_KEY", "GHOSTLINE_MODE", "GHOSTLINE_WEBHOOK_BASE", "CALLE_WEBHOOK_SECRET",
-        "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "LLM_API_KEY",
+        "CALLE_API_KEY", "GHOSTLINE_MODE", "GHOSTLINE_WEBHOOK_BASE",
+        "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "GEMINI_API_KEY",
     }
     have = {e["key"] for e in envs}
     for e in sorted(envs, key=lambda x: x["key"]):
